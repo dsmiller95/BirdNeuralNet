@@ -1,2 +1,10 @@
 # BirdNeuralNet
-Neural network to classify bird calls
+This Repository is for testing out neural networks to classify bird calls.
+
+
+
+---
+___
+**FANN**
+*FANN*
+
