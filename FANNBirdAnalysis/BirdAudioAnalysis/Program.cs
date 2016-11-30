@@ -34,7 +34,7 @@ namespace BirdAudioAnalysis
         {
             
             Console.WriteLine("loading file");
-            var myReader = new AudioFileReader("..\\..\\..\\DataSets\\Audio\\Tones\\440Hz_Sawtooth_Noise.wav");
+            var myReader = new AudioFileReader("..\\..\\..\\DataSets\\Audio\\Tones\\440Hz_Sawtooth_Noise.mp3");
 
             ReadWithLinq(myReader, 1024);
             //ReadWithoutLinq(myReader, 2048);
