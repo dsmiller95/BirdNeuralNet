@@ -12,7 +12,7 @@ namespace FANNUnitTests
         [TestMethod]
         public void TestMethod1()
         {
-            AudioStreamReader test = new AudioStreamReader();
+            //AudioStreamReader test = new AudioStreamReader();
         }
     }
 }
