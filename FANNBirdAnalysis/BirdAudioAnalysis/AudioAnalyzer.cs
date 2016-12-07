@@ -36,11 +36,16 @@ namespace BirdAudioAnalysis
             return bin * sampleRate / bufferSize;
         }
 
+        public int getDataSize()
+        {
+            return bufferSize/2;
+        }
+
         /*
          * Reads in the audio file specified by reader, taking in bufferSize number of samples in each chunk to be analyzed
          * Returns an enumerable composed of lists of the frequency bins
          */
-        public IEnumerable<IEnumerable<double>> getFrequencies()
+        public IEnumerable<double[]> getFrequencies()
         {
 
             var reader = new AudioFileReader(audioFile);
@@ -56,7 +61,7 @@ namespace BirdAudioAnalysis
             {
                 FourierTransform.FFT(complex, FourierTransform.Direction.Forward);
                 
-                return complex.Take(complex.Length / 2).Select((comp) => Math.Abs(comp.Magnitude));
+                return complex.Take(complex.Length / 2).Select((comp) => Math.Abs(comp.Magnitude)).ToArray();
             });
         }
     }
