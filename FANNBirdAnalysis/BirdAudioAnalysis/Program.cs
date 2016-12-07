@@ -36,12 +36,16 @@ namespace BirdAudioAnalysis
         {
             
             Console.WriteLine("loading file");
-            var myReader = new AudioFileReader("..\\..\\..\\DataSets\\Audio\\Tones\\440Hz_Sawtooth_Noise.mp3");
+            //var myReader = new AudioFileReader("..\\..\\..\\DataSets\\Audio\\Tones\\440Hz_Sawtooth_Noise.mp3");
 
             int bufferSize = 4096;
-            var analyzer = new AudioAnalyzer(myReader, bufferSize, 44100);
-            var frequencyData = (analyzer).getFrequencies().ToObservable();
-            frequencyData
+            var analyzer = new AudioAnalyzer("..\\..\\..\\DataSets\\Audio\\Tones\\440Hz_Sawtooth_Noise.mp3", bufferSize, 44100);
+            //var frequencyData = ;
+
+            var audioTrainer = new NeuralAudioTrainer(analyzer);
+            audioTrainer.TrainTheNetwork();
+
+            analyzer.getFrequencies().ToObservable()
                 .Subscribe((frequencies) =>
                {
                    double max = -10000;
@@ -58,7 +62,7 @@ namespace BirdAudioAnalysis
                    });
                    Console.WriteLine("Maximum frequency of {0} with amplitute {1}; bin {2}", analyzer.GetFrequencyForBin(maxloc), max, maxloc);
                });
-            
+
             Console.WriteLine("Press enter to exit");
             Console.ReadKey();
         }

@@ -14,11 +14,11 @@ namespace BirdAudioAnalysis
      */
     class AudioAnalyzer
     {
-        private AudioFileReader reader;
+        private string audioFile;
         private int bufferSize, sampleRate;
-        public AudioAnalyzer(AudioFileReader reader, int bufferSize, int sampleRate)
+        public AudioAnalyzer(string audioFile, int bufferSize, int sampleRate)
         {
-            this.reader = reader;
+            this.audioFile = audioFile;
             this.bufferSize = bufferSize;
             this.sampleRate = sampleRate;
         }
@@ -42,6 +42,8 @@ namespace BirdAudioAnalysis
          */
         public IEnumerable<IEnumerable<double>> getFrequencies()
         {
+
+            var reader = new AudioFileReader(audioFile);
             return (new AudioStreamReader(reader, bufferSize, bufferSize / 2)).Select((floats) =>
             {
                 Complex[] complex = new Complex[bufferSize];

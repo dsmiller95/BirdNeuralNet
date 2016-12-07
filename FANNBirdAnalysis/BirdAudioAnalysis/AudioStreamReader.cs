@@ -17,9 +17,8 @@ namespace BirdAudioAnalysis
         public AudioStreamReader(AudioFileReader reader, int chunksize, int offset)
         {
             this.chunksize = chunksize;
-            
-            this.offset = offset;
             this.reader = reader;
+            this.offset = offset;
         }
 
         public IEnumerator<float[]> GetEnumerator()

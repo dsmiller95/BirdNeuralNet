@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 
 using FANNCSharp;
+using System.Reactive.Linq;
 
 #if FANN_FIXED
 using FANNCSharp.Fixed;
@@ -23,12 +24,14 @@ namespace BirdAudioAnalysis
 {
     class NeuralAudioTrainer
     {
-        private IObservable<IEnumerable<double>> trainingData;
+        private AudioAnalyzer analyzer;
+        private List<IEnumerable<double>> frequencyTrainingData;
 
 
-        public NeuralAudioTrainer(IObservable<IEnumerable<double>> frequencyData)
+        public NeuralAudioTrainer(AudioAnalyzer analyzer)
         {
-
+            this.analyzer = analyzer;
+            frequencyTrainingData = this.analyzer.getFrequencies().ToList();
         }
 
         public void TrainTheNetwork()
