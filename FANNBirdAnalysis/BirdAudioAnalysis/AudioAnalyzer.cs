@@ -6,6 +6,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
+#if FANN_FIXED
+using FANNCSharp.Fixed;
+using DataType = System.Int32;
+#elif FANN_DOUBLE
+using FANNCSharp.Double;
+using DataType = System.Double;
+#else
+using FANNCSharp.Float;
+using DataType = System.Single;
+#endif
+
+
 namespace BirdAudioAnalysis
 {
     /*
@@ -45,7 +58,7 @@ namespace BirdAudioAnalysis
          * Reads in the audio file specified by reader, taking in bufferSize number of samples in each chunk to be analyzed
          * Returns an enumerable composed of lists of the frequency bins
          */
-        public IEnumerable<double[]> getFrequencies()
+        public IEnumerable<DataType[]> getFrequencies()
         {
 
             var reader = new AudioFileReader(audioFile);
@@ -61,7 +74,7 @@ namespace BirdAudioAnalysis
             {
                 FourierTransform.FFT(complex, FourierTransform.Direction.Forward);
                 
-                return complex.Take(complex.Length / 2).Select((comp) => Math.Abs(comp.Magnitude)).ToArray();
+                return complex.Take(complex.Length / 2).Select((comp) =>(DataType) Math.Abs(comp.Magnitude)).ToArray();
             });
         }
     }
