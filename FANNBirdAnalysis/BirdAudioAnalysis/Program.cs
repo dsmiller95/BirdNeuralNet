@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 using System.IO;
 
-
-using FANNCSharp;
+using System.Reactive.Linq;
 
 #if FANN_FIXED
 using FANNCSharp.Fixed;
@@ -21,12 +20,6 @@ using FANNCSharp.Float;
 using DataType = System.Single;
 #endif
 
-
-using NAudio.Wave;
-using NAudio;
-using AForge.Math;
-
-using System.Reactive.Linq;
 
 namespace BirdAudioAnalysis
 {
@@ -44,7 +37,27 @@ namespace BirdAudioAnalysis
 
             var audioTrainer = new NeuralAudioTrainer(fileSetRoots, 10);
             var network = audioTrainer.TrainTheNetwork();
-            
+
+
+            Console.WriteLine("Loading files to test against");
+            rootRoot = "..\\..\\..\\DataSets\\Audio\\Tones\\";
+            string[] streamingRoots = { rootRoot + "440Hz_Sine_Noise.mp3", rootRoot + "440Hz_Square_Noise.mp3", rootRoot + "440Hz_Sawtooth_Noise.mp3" };
+
+            for(var i = 0; i < streamingRoots.Length; i++)
+            {
+                Console.WriteLine("Testing against Stream {0}", i);
+                var stream = new NeuralAudioStreamer(network, streamingRoots[i]);
+                stream.getResultStream().Take(50).Select((results) =>
+                {
+                    foreach (var result in results)
+                    {
+                        Console.Write("{0:0.000}  ", result);
+                    }
+                    Console.WriteLine("");
+                    return 0;
+                }).ToList();
+
+            }
 
             Console.WriteLine("Press enter to exit");
             Console.ReadKey();

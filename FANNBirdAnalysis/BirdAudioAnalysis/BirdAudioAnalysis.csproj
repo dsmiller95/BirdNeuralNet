@@ -88,6 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AudioAnalyzer.cs" />
+    <Compile Include="NeuralAudioStreamer.cs" />
     <Compile Include="NeuralAudioTrainer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

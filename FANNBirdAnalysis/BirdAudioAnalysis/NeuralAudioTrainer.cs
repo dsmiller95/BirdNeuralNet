@@ -40,7 +40,6 @@ namespace BirdAudioAnalysis
             _rootFolders = rootFolders;
             _numFiles = numFiles;
             _defaultBufferSize = bufferSize;
-            //frequencyTrainingData = this._analyzer.getFrequencies().ToList();
         }
 
         private AudioAnalyzer GetAnalyzerForFile(int dataset, int file, int bufferSize)
@@ -54,7 +53,7 @@ namespace BirdAudioAnalysis
             var result = new DataType[_rootFolders.Length];
             for(int i = 0; i < result.Length; i++)
             {
-                result[i] = (float) -0.001;
+                result[i] = (float) -0.01;
             }
             result[dataset] = 1;
             return result;
