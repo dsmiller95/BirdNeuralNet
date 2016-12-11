@@ -33,22 +33,24 @@ namespace BirdAudioAnalysis
         private readonly string[] _rootFolders;
         private int _numFiles;
         private int _defaultBufferSize;
+        private bool trimSilence;
 
-        public NeuralAudioTrainer(string[] rootFolders, int numFiles, int bufferSize = 4096)
+        public NeuralAudioTrainer(string[] rootFolders, int numFiles, int bufferSize = 4096, bool trimSilence = false)
         {
             //this.analyzer = analyzer;
             _rootFolders = rootFolders;
             _numFiles = numFiles;
             _defaultBufferSize = bufferSize;
+            this.trimSilence = trimSilence;
         }
 
         private AudioAnalyzer GetAnalyzerForFile(int dataset, int file, int bufferSize)
         {
             file += 1;
-            return new AudioAnalyzer(_rootFolders[dataset] + file.ToString("D2") + ".mp3", bufferSize, 44100);
+            return new AudioAnalyzer(_rootFolders[dataset] + file.ToString("D2") + ".mp3", bufferSize, 44100, trimSilence);
         }
 
-        private DataType[] getExpectedResultForDataset(int dataset)
+        private DataType[] GetExpectedResultForDataset(int dataset)
         {
             var result = new DataType[_rootFolders.Length];
             for(int i = 0; i < result.Length; i++)
@@ -72,6 +74,9 @@ namespace BirdAudioAnalysis
             int testingIndex = 0;
             DataType[][] testingData = new DataType[numToTest * _rootFolders.Length][];
             DataType[][] testingResultsExpected = new DataType[numToTest * _rootFolders.Length][];
+
+            //maximum length out of all the samples; so that the rest can be padded with 0 to match
+            int maxLength = 0;
             for (int dataset = 0; dataset < _rootFolders.Length; dataset++)
             {
                 for (int file = 0; file < _numFiles; file++)
@@ -82,6 +87,11 @@ namespace BirdAudioAnalysis
                     int sampleWindow = theData.Length;
                     int dataSize = analyzer.getDataSize();
 
+                    if (sampleWindow * dataSize > maxLength)
+                    {
+                        maxLength = sampleWindow * dataSize;
+                    }
+
                     if (file < numToTrain)
                     {
                         //collect training data
@@ -90,7 +100,7 @@ namespace BirdAudioAnalysis
                         {
                             Array.Copy(theData[j], 0, trainingData[trainingIndex], j * dataSize, dataSize);
                         }
-                        trainingResultsExpected[trainingIndex] = getExpectedResultForDataset(dataset);
+                        trainingResultsExpected[trainingIndex] = GetExpectedResultForDataset(dataset);
                         trainingIndex++;
                     }
                     else
@@ -101,11 +111,17 @@ namespace BirdAudioAnalysis
                         {
                             Array.Copy(theData[j], 0, testingData[testingIndex], j * dataSize, dataSize);
                         }
-                        testingResultsExpected[testingIndex] = getExpectedResultForDataset(dataset);
+                        testingResultsExpected[testingIndex] = GetExpectedResultForDataset(dataset);
                         testingIndex++;
                     }
                 }
             }
+
+            this.PadAllWith0(trainingData, maxLength);
+            //this.PadAllWith0(trainingResultsExpected, maxLength);
+            this.PadAllWith0(testingData, maxLength);
+            //this.PadAllWith0(testingResultsExpected, maxLength);
+
 
             Console.WriteLine("Training data: ({0}x{1})", trainingData.Length, trainingData[0].Length);
             Console.WriteLine("Expected data: ({0}x{1})", trainingResultsExpected.Length, trainingResultsExpected[0].Length);
@@ -140,7 +156,7 @@ namespace BirdAudioAnalysis
             net.LearningMomentum = 0.5F;*/
             Console.WriteLine("MSE error on train data: {0}", net.TestData(training));
             Console.WriteLine("MSE error on test data:  {0}", net.TestData(testing));
-
+            
             net.TrainOnData(training, 20000, 5, desired_error);
 
             Console.WriteLine("MSE error on train data: {0}", net.TestData(training));
@@ -155,6 +171,16 @@ namespace BirdAudioAnalysis
 
 
             return net;
+        }
+
+        private void PadAllWith0<T>(T[][] array, int maxLength)
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                var tmp = new T[maxLength];
+                Array.Copy(array[i], tmp, array[i].Length);
+                array[i] = tmp;
+            }
         }
     }
 }

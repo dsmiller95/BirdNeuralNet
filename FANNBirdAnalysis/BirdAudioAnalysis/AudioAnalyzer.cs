@@ -29,11 +29,13 @@ namespace BirdAudioAnalysis
     {
         private string audioFile;
         private int bufferSize, sampleRate;
-        public AudioAnalyzer(string audioFile, int bufferSize, int sampleRate)
+        private bool trimSilence;
+        public AudioAnalyzer(string audioFile, int bufferSize, int sampleRate, bool trimSilence = false)
         {
             this.audioFile = audioFile;
             this.bufferSize = bufferSize;
             this.sampleRate = sampleRate;
+            this.trimSilence = trimSilence;
         }
 
         /*
@@ -62,7 +64,7 @@ namespace BirdAudioAnalysis
         {
 
             var reader = new AudioFileReader(audioFile);
-            return (new AudioStreamReader(reader, bufferSize, bufferSize / 2)).Select((floats) =>
+            return (new AudioStreamReader(reader, bufferSize, bufferSize / 2, trimSilence)).Select((floats) =>
             {
                 Complex[] complex = new Complex[bufferSize];
                 for (int i = 0; i < floats.Length; i++)
