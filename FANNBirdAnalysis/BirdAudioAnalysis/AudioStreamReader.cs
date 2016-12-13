@@ -50,12 +50,12 @@ namespace BirdAudioAnalysis
                 {
                     case ReadingState.Silence:
                         float avgSampleIntensity = transferBuffer.Skip(chunksize - offset).Average(sample => Math.Abs(sample));
-                        Console.WriteLine(avgSampleIntensity);
+                        //Console.WriteLine(avgSampleIntensity);
                         if (avgSampleIntensity < threshold)
                         {
                             break;
                         }
-                        Console.WriteLine("Going to read!");
+                        //Console.WriteLine("Going to read!");
                         state = ReadingState.Reading;
                         goto case ReadingState.Reading;
 
@@ -64,11 +64,11 @@ namespace BirdAudioAnalysis
                         Array.Copy(mainBuffer, offset, transferBuffer, 0, chunksize - offset);
                         mainBuffer = transferBuffer;
                         float avgBufferIntensity = transferBuffer.Average(sample => Math.Abs(sample));
-                        Console.WriteLine(avgBufferIntensity);
+                        //Console.WriteLine(avgBufferIntensity);
                         if (avgBufferIntensity < threshold/2)
                         {
                             state = ReadingState.Silence;
-                            Console.WriteLine("Going to silence");
+                            //Console.WriteLine("Going to silence");
                         }
 
                         break;

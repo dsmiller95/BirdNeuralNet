@@ -37,7 +37,7 @@ namespace BirdAudioAnalysis
             string speechRoot = "..\\..\\..\\DataSets\\Audio\\Speech\\";
             string[] speechSetRoots = { speechRoot + "Cold\\Erin\\Set_1\\", speechRoot + "Winter\\Erin\\Set_1\\" };
 
-            var audioTrainer = new NeuralAudioTrainer(speechSetRoots, 10, trimSilence: true);
+            var audioTrainer = new NeuralAudioTrainer(fileSetRoots, 10, trimSilence: true);
             var network = audioTrainer.TrainTheNetwork();
 
 
