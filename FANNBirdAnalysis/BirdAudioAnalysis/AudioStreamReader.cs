@@ -9,10 +9,15 @@ using NAudio.Wave;
 
 namespace BirdAudioAnalysis
 {
+    /**
+     * Class to read in the raw floading point samples from an audio file, and provide a rolling window over the data
+     * Will give a window of width ChunkSize and each next sample will be offset by Offset samples
+     */
     class AudioStreamReader : IEnumerable<float[]>
     {
-        private int chunksize, offset;
-        private AudioFileReader reader;
+        private readonly int _chunksize, _offset;
+        private readonly AudioFileReader _reader;
+
 
         private enum ReadingState
         {
@@ -21,80 +26,78 @@ namespace BirdAudioAnalysis
             Permaread
         }
 
-        private ReadingState state;
+        //Manages the current state of the reader for silence trimming
+        private ReadingState _state;
+        private const float SilenceThreshold = 0.1F;
 
         public AudioStreamReader(AudioFileReader reader, int chunksize, int offset, bool trimSilence = false)
         {
-            this.chunksize = chunksize;
-            this.reader = reader;
-            this.offset = offset;
-            state = (trimSilence) ? ReadingState.Silence : ReadingState.Permaread;
+            _chunksize = chunksize;
+            _reader = reader;
+            _offset = offset;
+            _state = trimSilence ? ReadingState.Silence : ReadingState.Permaread;
         }
 
-        private const float threshold = 0.1F;
 
         public IEnumerator<float[]> GetEnumerator()
         {
-            float[] mainBuffer = new float[chunksize];
-            byte[] buffer = new byte[offset * 4];
-            while (reader.Read(buffer, 0, buffer.Length) > 0)
+            //buffer to hold all the floats; and cache them for later use
+            float[] mainBuffer = new float[_chunksize];
+
+            //buffer to read in <offset> # of floats from the raw byte stream
+            byte[] buffer = new byte[_offset * 4];
+            while (_reader.Read(buffer, 0, buffer.Length) > 0)
             {
-                float[] transferBuffer = new float[chunksize];
-                //copy and convert to floats
-                for(int i = 0; i < offset; i++)
+                float[] transferBuffer = new float[_chunksize];
+
+                //copy to the transfer buffer and convert to floats
+                for(int i = 0; i < _offset; i++)
                 {
-                    transferBuffer[(chunksize - offset) + i] = System.BitConverter.ToSingle(buffer, i * 4);
+                    transferBuffer[(_chunksize - _offset) + i] = BitConverter.ToSingle(buffer, i * 4);
                 }
                 
-                switch (state)
+                switch (_state)
                 {
                     case ReadingState.Silence:
-                        float avgSampleIntensity = transferBuffer.Skip(chunksize - offset).Average(sample => Math.Abs(sample));
-                        //Console.WriteLine(avgSampleIntensity);
-                        if (avgSampleIntensity < threshold)
+                        float avgSampleIntensity = transferBuffer.Skip(_chunksize - _offset).Average(sample => Math.Abs(sample));
+                        
+                        //if it's still quiet, we're done here
+                        if (avgSampleIntensity < SilenceThreshold)
                         {
                             break;
                         }
                         //Console.WriteLine("Going to read!");
-                        state = ReadingState.Reading;
+                        _state = ReadingState.Reading;
                         goto case ReadingState.Reading;
 
                     case ReadingState.Reading:
-
-                        Array.Copy(mainBuffer, offset, transferBuffer, 0, chunksize - offset);
+                        //copy the old buffer data in the mainBuffer over into the transfer buffer; at an offset of its original position
+                        Array.Copy(mainBuffer, _offset, transferBuffer, 0, _chunksize - _offset);
                         mainBuffer = transferBuffer;
+
+                        //get the average amplitude of the buffer
                         float avgBufferIntensity = transferBuffer.Average(sample => Math.Abs(sample));
-                        //Console.WriteLine(avgBufferIntensity);
-                        if (avgBufferIntensity < threshold/2)
+                        
+                        //if the average intensity is too low, we're reading silence and should go into the silence state
+                        if (avgBufferIntensity < SilenceThreshold/2)
                         {
-                            state = ReadingState.Silence;
-                            //Console.WriteLine("Going to silence");
+                            _state = ReadingState.Silence;
+                            break;
                         }
 
+                        //yeild the next buffer
+                        yield return transferBuffer;
                         break;
 
                     case ReadingState.Permaread:
-
-                        Array.Copy(mainBuffer, offset, transferBuffer, 0, chunksize - offset);
+                        //Just read the data and pass it on, no noise filtering
+                        Array.Copy(mainBuffer, _offset, transferBuffer, 0, _chunksize - _offset);
                         mainBuffer = transferBuffer;
-                        break;
 
-
-                    default:
+                        yield return transferBuffer;
                         break;
                 }
-                
-                
-                
-
-                //shift over all the values
-
-                //float avgBufferIntensity = transferBuffer.Average(sample => Math.Abs(sample));
-
-
-
-                yield return transferBuffer;
-                
+                //yield return transferBuffer;
             }
             yield break;
         }

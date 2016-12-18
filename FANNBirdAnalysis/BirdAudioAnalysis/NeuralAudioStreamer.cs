@@ -20,9 +20,9 @@ namespace BirdAudioAnalysis
     class NeuralAudioStreamer
     {
 
-        private AudioAnalyzer _analyzer;
+        private readonly AudioAnalyzer _analyzer;
         private string _fileName;
-        private NeuralNet _network;
+        private readonly NeuralNet _network;
 
         public NeuralAudioStreamer(NeuralNet network, string fileName, int bufferSize = 4096, int sampleRate = 44100)
         {
@@ -31,10 +31,10 @@ namespace BirdAudioAnalysis
             _network = network;
         }
 
-        public IEnumerable<DataType[]> getResultStream()
+        public IEnumerable<DataType[]> GetResultStream()
         {
             var inputLength = _network.InputCount;
-            int frequencySize = _analyzer.getDataSize();
+            int frequencySize = _analyzer.GetDataSize();
             if(inputLength % frequencySize != 0)
             {
                 Console.WriteLine("Incompatable lengths!!");
@@ -42,7 +42,7 @@ namespace BirdAudioAnalysis
             }
 
             var rollingWindow = new DataType[inputLength];
-            var frequencies = _analyzer.getFrequencies();
+            var frequencies = _analyzer.GetFrequencies();
             foreach (var current in frequencies)
             {
                 DataType[] transferBuffer = new DataType[inputLength];

@@ -27,15 +27,15 @@ namespace BirdAudioAnalysis
      */
     class AudioAnalyzer
     {
-        private string audioFile;
-        private int bufferSize, sampleRate;
-        private bool trimSilence;
+        private readonly string _audioFile;
+        private readonly int _bufferSize, _sampleRate;
+        private readonly bool _trimSilence;
         public AudioAnalyzer(string audioFile, int bufferSize, int sampleRate, bool trimSilence = false)
         {
-            this.audioFile = audioFile;
-            this.bufferSize = bufferSize;
-            this.sampleRate = sampleRate;
-            this.trimSilence = trimSilence;
+            _audioFile = audioFile;
+            _bufferSize = bufferSize;
+            _sampleRate = sampleRate;
+            _trimSilence = trimSilence;
         }
 
         /*
@@ -43,30 +43,33 @@ namespace BirdAudioAnalysis
          */
         public int GetFrequencyForBin(int bin)
         {
-            return bin * sampleRate / bufferSize;
+            return bin * _sampleRate / _bufferSize;
         }
 
         public float GetFrequencyForBin(float bin)
         {
-            return bin * sampleRate / bufferSize;
+            return bin * _sampleRate / _bufferSize;
         }
 
-        public int getDataSize()
+        /**
+         * Get the size of the arrays that will be returned from this analyzer
+         */
+        public int GetDataSize()
         {
-            return bufferSize/2;
+            return _bufferSize/2;
         }
 
         /*
          * Reads in the audio file specified by reader, taking in bufferSize number of samples in each chunk to be analyzed
          * Returns an enumerable composed of lists of the frequency bins
          */
-        public IEnumerable<DataType[]> getFrequencies()
+        public IEnumerable<DataType[]> GetFrequencies()
         {
 
-            var reader = new AudioFileReader(audioFile);
-            return (new AudioStreamReader(reader, bufferSize, bufferSize / 2, trimSilence)).Select((floats) =>
+            var reader = new AudioFileReader(_audioFile);
+            return (new AudioStreamReader(reader, _bufferSize, _bufferSize / 2, _trimSilence)).Select((floats) =>
             {
-                Complex[] complex = new Complex[bufferSize];
+                Complex[] complex = new Complex[_bufferSize];
                 for (int i = 0; i < floats.Length; i++)
                 {
                     complex[i] = new Complex(floats[i], 0);
