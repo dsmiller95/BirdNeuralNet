@@ -13,7 +13,7 @@ This example shows the neural network's training results when the learning momen
 
 1. Clone repository
 2. Open Project/Solution and navigate to the .sln file
-3. In order to run successfully, you must right-click the FANNOutputer in the Solution Explorer and select the option "Set as StartUp Project" (option in the dropdown has a gear next to it)
+3. In order to run successfully, you must right-click the FANNBirdAnalysis in the Solution Explorer and select the option "Set as StartUp Project" (option in the dropdown has a gear next to it)
 4. Run that shit
 
 
