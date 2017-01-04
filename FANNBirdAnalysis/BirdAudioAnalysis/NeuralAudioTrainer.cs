@@ -67,6 +67,7 @@ namespace BirdAudioAnalysis
         {
 
             int trainingIndex = 0;
+
             DataType[][] trainingData = new DataType[numToTrain * _rootFolders.Length][];
             DataType[][] trainingResultsExpected = new DataType[numToTrain * _rootFolders.Length][];
 
@@ -75,6 +76,7 @@ namespace BirdAudioAnalysis
             DataType[][] testingResultsExpected = new DataType[numToTest * _rootFolders.Length][];
 
             //maximum length out of all the samples; so that the rest can be padded with 0 to match the same size
+            //The samples need to be of the same length
             int maxLength = 0;
             for (int dataset = 0; dataset < _rootFolders.Length; dataset++)
             {

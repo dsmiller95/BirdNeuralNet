@@ -24,7 +24,10 @@ namespace BirdAudioAnalysis
             
             //Set up arrays to hold the file roots of the training data sets
             string toneRoot = "..\\..\\..\\DataSets\\Audio\\Tones\\Samples\\";
+            //This is the array used to point to each sample set
             string[] fileSetRoots = { toneRoot + "Sin\\440Hz\\", toneRoot + "Square\\440Hz\\", toneRoot + "Sawtooth\\440Hz\\" };
+
+
             string speechRoot = "..\\..\\..\\DataSets\\Audio\\Speech\\";
             string[] speechSetRoots = { speechRoot + "Cold\\Erin\\Set_1\\", speechRoot + "Winter\\Erin\\Set_1\\" };
 

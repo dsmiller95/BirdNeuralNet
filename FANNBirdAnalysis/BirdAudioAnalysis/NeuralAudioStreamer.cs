@@ -17,6 +17,10 @@ using DataType = System.Single;
 
 namespace BirdAudioAnalysis
 {
+
+    /**
+     * Class built to stream an audio file through a neural network; after it has been trained ideally
+     */
     class NeuralAudioStreamer
     {
 
@@ -31,6 +35,9 @@ namespace BirdAudioAnalysis
             _network = network;
         }
 
+        /**
+         * Returns a stream of results from the output layer of the neural network
+         */
         public IEnumerable<DataType[]> GetResultStream()
         {
             var inputLength = _network.InputCount;
@@ -41,20 +48,21 @@ namespace BirdAudioAnalysis
                 yield break;
             }
 
+            //An array to hold all the data for the input layer of the neural network
             var rollingWindow = new DataType[inputLength];
             var frequencies = _analyzer.GetFrequencies();
             foreach (var current in frequencies)
             {
                 DataType[] transferBuffer = new DataType[inputLength];
-                //copy values
+                //copy current values into the transfer buffer
                 Array.Copy(current, 0, transferBuffer, 0, frequencySize);
 
-                //shift over all the values
+                //copy the rest of the past data over into the transfer buffer at a higher index
                 Array.Copy(rollingWindow, 0, transferBuffer, frequencySize, inputLength - frequencySize);
 
                 rollingWindow = transferBuffer;
                 
-
+                //yeild the output result of the neural network
                 yield return _network.Run(rollingWindow);
             }
         }

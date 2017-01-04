@@ -22,8 +22,8 @@ using DataType = System.Single;
 namespace BirdAudioAnalysis
 {
     /*
-     * A class designed to read the data from an AudioFileReader and output it as floats into a FFT,
-     * returning array of numbers representing the frequency amplitudes
+     * A class designed to read the data from an audio file and output an array 
+     * of floating points representing the frequency amplitudes; as a result from a FFT
      */
     class AudioAnalyzer
     {
@@ -39,7 +39,7 @@ namespace BirdAudioAnalysis
         }
 
         /*
-         * Get the corresponding frequency for the given frequency bin
+         * Get the corresponding frequency in Hz for the given frequency bin
          */
         public int GetFrequencyForBin(int bin)
         {
@@ -69,6 +69,7 @@ namespace BirdAudioAnalysis
             var reader = new AudioFileReader(_audioFile);
             return (new AudioStreamReader(reader, _bufferSize, _bufferSize / 2, _trimSilence)).Select((floats) =>
             {
+                //Cast all of the floating point numbers to Complex numbers in preperation for the FFT
                 Complex[] complex = new Complex[_bufferSize];
                 for (int i = 0; i < floats.Length; i++)
                 {
@@ -77,9 +78,14 @@ namespace BirdAudioAnalysis
                 return complex;
             }).Select((complex) =>
             {
+                //Perform the FFT and throw away half of the resulting array; then cast to Datatype from Complex
                 FourierTransform.FFT(complex, FourierTransform.Direction.Forward);
                 
-                return complex.Take(complex.Length / 2).Select((comp) =>(DataType) Math.Abs(comp.Magnitude)).ToArray();
+                return complex
+                    //throw away half because the FFT is Symmetric when all inputs are real number
+                    .Take(complex.Length / 2)
+                    .Select((comp) => (DataType) Math.Abs(comp.Magnitude))
+                    .ToArray();
             });
         }
     }

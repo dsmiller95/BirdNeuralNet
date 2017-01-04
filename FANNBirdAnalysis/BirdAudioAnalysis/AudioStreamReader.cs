@@ -12,6 +12,12 @@ namespace BirdAudioAnalysis
     /**
      * Class to read in the raw floading point samples from an audio file, and provide a rolling window over the data
      * Will give a window of width ChunkSize and each next sample will be offset by Offset samples
+     * EX:
+     * ChunkSize of 4 and Offset of 2. The number |-#-| indicates a unique window of samples, numbered in order that they are returned
+     * Samples:
+     *      |--2---||--4---||--6---|
+     *  |---1--||--3---||--5---||--7---|
+     *  * * * * * * * * * * * * * * * * *
      */
     class AudioStreamReader : IEnumerable<float[]>
     {
@@ -41,16 +47,17 @@ namespace BirdAudioAnalysis
 
         public IEnumerator<float[]> GetEnumerator()
         {
-            //buffer to hold all the floats; and cache them for later use
+            //buffer to hold all the sample data points
             float[] mainBuffer = new float[_chunksize];
 
-            //buffer to read in <offset> # of floats from the raw byte stream
+            //buffer to read in <offset> # of samples from the raw byte stream
+            //will be converted from bytes to floats
             byte[] buffer = new byte[_offset * 4];
             while (_reader.Read(buffer, 0, buffer.Length) > 0)
             {
                 float[] transferBuffer = new float[_chunksize];
 
-                //copy to the transfer buffer and convert to floats
+                //copy the newly read data to the transfer buffer and convert to floats
                 for(int i = 0; i < _offset; i++)
                 {
                     transferBuffer[(_chunksize - _offset) + i] = BitConverter.ToSingle(buffer, i * 4);
@@ -59,6 +66,7 @@ namespace BirdAudioAnalysis
                 switch (_state)
                 {
                     case ReadingState.Silence:
+                        //if we're reading silence; check to see if the average amplitude is high enough to count as non-silence
                         float avgSampleIntensity = transferBuffer.Skip(_chunksize - _offset).Average(sample => Math.Abs(sample));
                         
                         //if it's still quiet, we're done here
@@ -71,6 +79,8 @@ namespace BirdAudioAnalysis
                         goto case ReadingState.Reading;
 
                     case ReadingState.Reading:
+                        //if we're reading noise, check to make sure it hasn't gotten quiet enough to count as silence
+
                         //copy the old buffer data in the mainBuffer over into the transfer buffer; at an offset of its original position
                         Array.Copy(mainBuffer, _offset, transferBuffer, 0, _chunksize - _offset);
                         mainBuffer = transferBuffer;
@@ -90,7 +100,7 @@ namespace BirdAudioAnalysis
                         break;
 
                     case ReadingState.Permaread:
-                        //Just read the data and pass it on, no noise filtering
+                        //Just read the data and pass it on, no noise or silence filtering
                         Array.Copy(mainBuffer, _offset, transferBuffer, 0, _chunksize - _offset);
                         mainBuffer = transferBuffer;
 
