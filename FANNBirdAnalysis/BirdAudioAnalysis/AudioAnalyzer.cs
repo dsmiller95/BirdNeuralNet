@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
+// TODO: explain what all these FANN data types are, they probably don't know. also where are they set anyways? since this is a if/else
 #if FANN_FIXED
 using FANNCSharp.Fixed;
 using DataType = System.Int32;
@@ -27,8 +27,11 @@ namespace BirdAudioAnalysis
      */
     class AudioAnalyzer
     {
+        // TODO: why is the audioFile a string? where is it getting the file from? another file in the project?
         private readonly string _audioFile;
+        // TODO: if we change these, how will it affect the network. ex: smaller buffer size = slower to go through it all? or more accurate? our groupmates will need to understand.
         private readonly int _bufferSize, _sampleRate;
+        // TODO: what is trimsilence for
         private readonly bool _trimSilence;
         public AudioAnalyzer(string audioFile, int bufferSize, int sampleRate, bool trimSilence = false)
         {
@@ -41,11 +44,12 @@ namespace BirdAudioAnalysis
         /*
          * Get the corresponding frequency in Hz for the given frequency bin
          */
+        // TODO: what is the "frequency bin"? why did you even call it a bin what does that mean in this context. just a place to put stuff? that kind of bin?
         public int GetFrequencyForBin(int bin)
         {
             return bin * _sampleRate / _bufferSize;
         }
-
+        // TODO: explain why we would need to get the frequency as a float vs why we would want it as an int.
         public float GetFrequencyForBin(float bin)
         {
             return bin * _sampleRate / _bufferSize;
@@ -54,6 +58,7 @@ namespace BirdAudioAnalysis
         /**
          * Get the size of the arrays that will be returned from this analyzer
          */
+        // TODO: what are "the arrays". arrays of frequencies? arrays of FFT results? why are you dividing it by 2?
         public int GetDataSize()
         {
             return _bufferSize/2;
@@ -70,6 +75,7 @@ namespace BirdAudioAnalysis
             return (new AudioStreamReader(reader, _bufferSize, _bufferSize / 2, _trimSilence)).Select((floats) =>
             {
                 //Cast all of the floating point numbers to Complex numbers in preperation for the FFT
+                // TODO: okay but why do we need Complex numbers for the FFT. I think youre forgetting they dont know all this stuff.
                 Complex[] complex = new Complex[_bufferSize];
                 for (int i = 0; i < floats.Length; i++)
                 {
