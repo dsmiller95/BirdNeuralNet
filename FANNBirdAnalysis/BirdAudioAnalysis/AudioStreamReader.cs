@@ -24,7 +24,7 @@ namespace BirdAudioAnalysis
         private readonly int _chunksize, _offset;
         private readonly AudioFileReader _reader;
 
-
+    // TODO: ???? should probably explain when these would be used, especially "permaread"
         private enum ReadingState
         {
             Silence,
@@ -34,6 +34,7 @@ namespace BirdAudioAnalysis
 
         //Manages the current state of the reader for silence trimming
         private ReadingState _state;
+        // TODO: what is this threshold used for. what does it mean
         private const float SilenceThreshold = 0.1F;
 
         public AudioStreamReader(AudioFileReader reader, int chunksize, int offset, bool trimSilence = false)
@@ -41,6 +42,7 @@ namespace BirdAudioAnalysis
             _chunksize = chunksize;
             _reader = reader;
             _offset = offset;
+            // TODO: explain what you are doing here & why
             _state = trimSilence ? ReadingState.Silence : ReadingState.Permaread;
         }
 
@@ -58,6 +60,7 @@ namespace BirdAudioAnalysis
                 float[] transferBuffer = new float[_chunksize];
 
                 //copy the newly read data to the transfer buffer and convert to floats
+                // TODO: why do you need a transfer buffer. where is it being transferred to?
                 for(int i = 0; i < _offset; i++)
                 {
                     transferBuffer[(_chunksize - _offset) + i] = BitConverter.ToSingle(buffer, i * 4);
@@ -80,7 +83,7 @@ namespace BirdAudioAnalysis
 
                     case ReadingState.Reading:
                         //if we're reading noise, check to make sure it hasn't gotten quiet enough to count as silence
-
+                        // TODO: so... why do we care if its silent vs if its not? maybe say that in the silence portion? or here?
                         //copy the old buffer data in the mainBuffer over into the transfer buffer; at an offset of its original position
                         Array.Copy(mainBuffer, _offset, transferBuffer, 0, _chunksize - _offset);
                         mainBuffer = transferBuffer;
@@ -95,7 +98,9 @@ namespace BirdAudioAnalysis
                             break;
                         }
 
-                        //yeild the next buffer
+                        //yield the next buffer
+                        // TODO: what does this even mean. to yield it. you basically wrote a comment that is identical to
+                        // the actual code
                         yield return transferBuffer;
                         break;
 
@@ -107,11 +112,12 @@ namespace BirdAudioAnalysis
                         yield return transferBuffer;
                         break;
                 }
+                // TODO: should this be removed since its commented out
                 //yield return transferBuffer;
             }
             yield break;
         }
-
+        // TODO: what is this for
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
