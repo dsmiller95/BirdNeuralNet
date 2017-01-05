@@ -17,12 +17,14 @@ using DataType = System.Single;
 
 namespace BirdAudioAnalysis
 {
+    // TODO: this is a really vague name for this file. can we change this to make more sense?
     class Program
     {
         private static void Main(string[] args)
         {
             
             //Set up arrays to hold the file roots of the training data sets
+            // TODO: this is worded really weirdly... file roots??? arrays to hold it? the next line doesnt even have an array, what are you referring to?
             string toneRoot = "..\\..\\..\\DataSets\\Audio\\Tones\\Samples\\";
             //This is the array used to point to each sample set
             string[] fileSetRoots = { toneRoot + "Sin\\440Hz\\", toneRoot + "Square\\440Hz\\", toneRoot + "Sawtooth\\440Hz\\" };
