@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-// TODO: explain what all these FANN data types are, they probably don't know. also where are they set anyways? since this is a if/else
 #if FANN_FIXED
 using FANNCSharp.Fixed;
 using DataType = System.Int32;
@@ -28,39 +27,56 @@ namespace BirdAudioAnalysis
     class AudioAnalyzer
     {
         // TODO: why is the audioFile a string? where is it getting the file from? another file in the project?
-        private readonly string _audioFile;
+        //The path to the audio file
+        private readonly string _audioFilePath;
+
         // TODO: if we change these, how will it affect the network. ex: smaller buffer size = slower to go through it all? or more accurate? our groupmates will need to understand.
-        private readonly int _bufferSize, _sampleRate;
+        // bufferSize is how long of a section of the audio that is analyzed for its frequency at once.
+        //  A higher bufferSize might gloss over some rapid changes in frequency, whereas a smaller buffer size
+        //  will have more noise in the resulting spectrum and lower resolution in the resulting frequency bands
+        private readonly int _bufferSize;
+
+        // Sample rate is an artifact of how the audio file itself was recorded, referring to the number of samples/second
+        private readonly int _sampleRate;
         // TODO: what is trimsilence for
+        // Silence can be optionally trimmed out of the audio file
         private readonly bool _trimSilence;
         public AudioAnalyzer(string audioFile, int bufferSize, int sampleRate, bool trimSilence = false)
         {
-            _audioFile = audioFile;
+            _audioFilePath = audioFile;
             _bufferSize = bufferSize;
             _sampleRate = sampleRate;
             _trimSilence = trimSilence;
         }
 
-        /*
+        /**
          * Get the corresponding frequency in Hz for the given frequency bin
+         * The frequency bin refers to how the FFT works; when it completes it returns an array of "bins", each of which
+         * correspond to a certain frequency and the numeric value in the "bin" corresponds to the intensity of that frequency. 
+         * I call them bins since I think of them as analogous to bins we can place things in when doing a histogram of some sort
          */
         // TODO: what is the "frequency bin"? why did you even call it a bin what does that mean in this context. just a place to put stuff? that kind of bin?
         public int GetFrequencyForBin(int bin)
         {
             return bin * _sampleRate / _bufferSize;
         }
+
         // TODO: explain why we would need to get the frequency as a float vs why we would want it as an int.
+        /**
+         * Float version of the method provided if higher accuracy is needed
+         */
         public float GetFrequencyForBin(float bin)
         {
             return bin * _sampleRate / _bufferSize;
         }
 
         /**
-         * Get the size of the arrays that will be returned from this analyzer
+         * Get the size of the FFT results that will be returned from this analyzer
          */
         // TODO: what are "the arrays". arrays of frequencies? arrays of FFT results? why are you dividing it by 2?
         public int GetDataSize()
         {
+            //divided by 2 becaust the FFT is symmetric on inputs of all real numbers; only half of the array carries all of the information
             return _bufferSize/2;
         }
 
@@ -71,11 +87,14 @@ namespace BirdAudioAnalysis
         public IEnumerable<DataType[]> GetFrequencies()
         {
 
-            var reader = new AudioFileReader(_audioFile);
+            var reader = new AudioFileReader(_audioFilePath);
             return (new AudioStreamReader(reader, _bufferSize, _bufferSize / 2, _trimSilence)).Select((floats) =>
             {
                 //Cast all of the floating point numbers to Complex numbers in preperation for the FFT
                 // TODO: okay but why do we need Complex numbers for the FFT. I think youre forgetting they dont know all this stuff.
+                //We need to cast to complex numbers here because this particular library forces us to
+                //Technically, the FFT is an operation on complex numbers and returns complex numbers. but in this case
+                // we're representing a real number as Complex data type so that the library will accept our data
                 Complex[] complex = new Complex[_bufferSize];
                 for (int i = 0; i < floats.Length; i++)
                 {

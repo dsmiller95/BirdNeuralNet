@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 
 
+//This statement is used to allow for compilation of the code using a 
+// integer, double, or float neural network. that means that the FANN network
+// would use this data type for all of its computations. this could be useful for 
+// testing how the performace varies when the compilation flags are changed.
+//Currently it should be configured to compile with DataType resolving to System.Single; a Float
 #if FANN_FIXED
 using FANNCSharp.Fixed;
 using DataType = System.Int32;
@@ -18,16 +23,21 @@ using DataType = System.Single;
 namespace BirdAudioAnalysis
 {
     // TODO: this is a really vague name for this file. can we change this to make more sense?
-    class Program
+    class NeuralAudioTest
     {
         private static void Main(string[] args)
         {
             
-            //Set up arrays to hold the file roots of the training data sets
+            //Set up arrays to hold the paths to the folders which contain all the training data sets
             // TODO: this is worded really weirdly... file roots??? arrays to hold it? the next line doesnt even have an array, what are you referring to?
             string toneRoot = "..\\..\\..\\DataSets\\Audio\\Tones\\Samples\\";
             //This is the array used to point to each sample set
-            string[] fileSetRoots = { toneRoot + "Sin\\440Hz\\", toneRoot + "Square\\440Hz\\", toneRoot + "Sawtooth\\440Hz\\" };
+            string[] fileSetRoots =
+            {
+                toneRoot + "Sin\\440Hz\\",
+                toneRoot + "Square\\440Hz\\",
+                toneRoot + "Sawtooth\\440Hz\\"
+            };
 
 
             string speechRoot = "..\\..\\..\\DataSets\\Audio\\Speech\\";
