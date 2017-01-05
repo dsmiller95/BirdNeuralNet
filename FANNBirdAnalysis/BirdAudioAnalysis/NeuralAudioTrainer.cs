@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 
 using FANNCSharp;
-
+// TODO: like the other files, maybe explain what these are
 #if FANN_FIXED
 using FANNCSharp.Fixed;
 using DataType = System.Int32;
@@ -24,6 +24,7 @@ namespace BirdAudioAnalysis
 {
     class NeuralAudioTrainer
     {
+        // TODO: comments for what these are used for/what they are?
         private readonly string[] _rootFolders;
         private readonly int _numFiles;
         private readonly int _defaultBufferSize;
@@ -40,6 +41,7 @@ namespace BirdAudioAnalysis
 
         private AudioAnalyzer GetAnalyzerForFile(int dataset, int file, int bufferSize)
         {
+            // TODO: why are you adding 1?
             file += 1;
             return new AudioAnalyzer(_rootFolders[dataset] + file.ToString("D2") + ".mp3", bufferSize, 44100, _trimSilence);
         }
@@ -47,6 +49,7 @@ namespace BirdAudioAnalysis
         /**
          * Get a set of what we should expect the neural network to output for a specific data classification.
          * All array entries except the target classification will be -0.01; the target will be 1
+         * TODO: ???? why are they all -0.01???
          */
         private DataType[] GetExpectedResultForDataset(int dataset)
         {
@@ -66,8 +69,9 @@ namespace BirdAudioAnalysis
         private void GetTrainingData(int numToTrain, int numToTest)
         {
 
+            // TODO: theres no comment on what is going on here. explain?
+            // why are they 2D arrays? why are you giving it numToTrain * rootFolder length?
             int trainingIndex = 0;
-
             DataType[][] trainingData = new DataType[numToTrain * _rootFolders.Length][];
             DataType[][] trainingResultsExpected = new DataType[numToTrain * _rootFolders.Length][];
 
@@ -95,7 +99,7 @@ namespace BirdAudioAnalysis
                         maxLength = sampleWindow * dataSize;
                     }
 
-
+                    // TODO: there really arent any step by step comments here... what is happening in each of these if statements?
                     if (file < numToTrain)
                     {
                         //collect training data
@@ -123,6 +127,7 @@ namespace BirdAudioAnalysis
 
             //pad the 2D arrays with 0's to make them all at least maxLength in length
             //ensures the arrays are rectangular and not jagged
+            // TODO: why does that matter?
             PadAllWith0(trainingData, maxLength);
             PadAllWith0(testingData, maxLength);
 
@@ -146,11 +151,12 @@ namespace BirdAudioAnalysis
          */
         public NeuralNet TrainTheNetwork()
         {
+            // TODO: what is numToTest for?
             int numToTest = 3;
             int numToTrain = _numFiles - numToTest;
             GetTrainingData(numToTrain, numToTest);
             
-
+            // TODO: comment about what layers are or what the hidden neurons are. or SOMETHING explaining what is going on.
             const uint numLayers = 3;
             uint numInput = _training.InputCount;
             const uint numNeuronsHidden = 100;
