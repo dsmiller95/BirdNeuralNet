@@ -86,8 +86,11 @@ namespace BirdAudioAnalysis
          */
         public IEnumerable<DataType[]> GetFrequencies()
         {
-
+            
             var reader = new AudioFileReader(_audioFilePath);
+            // TODO: When creating the AudioStreamReader, can you replace "_bufferSize / 2" with GetDataSize() 
+            // Yes I could, but that would be obscuring the purpose behind that parameter. It would be just as valid
+            //  To put bufferSize / 4 in its place
             return (new AudioStreamReader(reader, _bufferSize, _bufferSize / 2, _trimSilence)).Select((floats) =>
             {
                 //Cast all of the floating point numbers to Complex numbers in preperation for the FFT
@@ -104,6 +107,11 @@ namespace BirdAudioAnalysis
             }).Select((complex) =>
             {
                 //Perform the FFT and throw away half of the resulting array; then cast to Datatype from Complex
+                // TODO: A little context on what is actually happening here would help. 
+                // https://en.wikipedia.org/wiki/Fast_Fourier_transform
+                // https://upload.wikimedia.org/wikipedia/commons/5/50/Fourier_transform_time_and_frequency_domains.gif
+                // The FFT is an algorith to perform a fourier transformation. this transformation effectively gives us
+                //  the amplitudes of sin and cosine waves at specific frequencies that can be used to compose the input sample when added together
                 FourierTransform.FFT(complex, FourierTransform.Direction.Forward);
                 
                 return complex

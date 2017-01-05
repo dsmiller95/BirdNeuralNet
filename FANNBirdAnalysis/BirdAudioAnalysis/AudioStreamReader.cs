@@ -10,8 +10,8 @@ using NAudio.Wave;
 namespace BirdAudioAnalysis
 {
     /**
-     * Class to read in the raw floading point samples from an audio file, and provide a rolling window over the data
-     * Will give a window of width ChunkSize and each next sample will be offset by Offset samples
+     * This class will read in the raw floating point samples from an audio file, and provide a rolling window over the data.
+     * This will give a window of width ChunkSize and each next sample will be offset by Offset samples
      * EX:
      * ChunkSize of 4 and Offset of 2. The number |-#-| indicates a unique window of samples, numbered in order that they are returned
      * Samples:
@@ -102,21 +102,24 @@ namespace BirdAudioAnalysis
                         // TODO: so... why do we care if its silent vs if its not? maybe say that in the silence portion? or here?
                                 //Answered up by the silence threshold variable
                         //copy the old buffer data in the mainBuffer over into the transfer buffer; at an offset of its original position
+                        //TODO: should this be done after the silence threshold is checked?
+                        //this is done in order to check the average intensity of the entire buffer. it may be better to do this after checking for silence
                         Array.Copy(mainBuffer, _offset, transferBuffer, 0, _chunksize - _offset);
                         mainBuffer = transferBuffer;
 
                         //get the average amplitude of the buffer
                         float avgBufferIntensity = transferBuffer.Average(sample => Math.Abs(sample));
-                        
+
                         //if the average intensity is too low, we're reading silence and should go into the silence state
+                        // We look for a lower silence threshold here because otherwise it would be easy for the states to switch
+                        // back and forth quickly, based on the intensity of the next sample chunk
+                        // TODO: Why is this different from the conditional in the ReadingState.Silence switch block? ie: "avgBufferIntensity < SilenceThreshold/2" vs "avgBufferIntensity < SilenceThreshold"
                         if (avgBufferIntensity < SilenceThreshold/2)
                         {
                             _state = ReadingState.Silence;
                             break;
                         }
                         
-                        // TODO: what does this even mean. to yield it. you basically wrote a comment that is identical to
-                        // the actual code
                         // Provide the buffer as the next element in the enumerable sequence
                         yield return transferBuffer;
                         break;

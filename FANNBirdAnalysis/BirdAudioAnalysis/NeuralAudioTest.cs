@@ -38,14 +38,11 @@ namespace BirdAudioAnalysis
                 toneRoot + "Square\\440Hz\\",
                 toneRoot + "Sawtooth\\440Hz\\"
             };
-
-
-            string speechRoot = "..\\..\\..\\DataSets\\Audio\\Speech\\";
-            string[] speechSetRoots = { speechRoot + "Cold\\Erin\\Set_1\\", speechRoot + "Winter\\Erin\\Set_1\\" };
+            
 
             //get our trained neural network!
             var audioTrainer = new NeuralAudioTrainer(fileSetRoots, 10, trimSilence: true);
-            var network = audioTrainer.TrainTheNetwork();
+            var network = audioTrainer.TrainTheNetwork(3);
 
             Console.WriteLine("Loading files to test against");
             

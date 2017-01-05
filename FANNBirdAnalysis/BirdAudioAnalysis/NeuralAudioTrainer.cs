@@ -47,6 +47,15 @@ namespace BirdAudioAnalysis
         }   
 
 
+        // TODO: can you rename this to GetAnalyzerForDataSet or something? The method makes it seem like its for a singular audio file rather than a directory
+
+        /// <summary>
+        /// Get an audio analyzer for one file
+        /// </summary>
+        /// <param name="dataset">the number (index) of the dataset to get the file from</param>
+        /// <param name="file">the number or index of the file within the dataset to grab</param>
+        /// <param name="bufferSize">the size of the buffer to use in the audio analyzer</param>
+        /// <returns></returns>
         private AudioAnalyzer GetAnalyzerForFile(int dataset, int file, int bufferSize)
         {
             // TODO: why are you adding 1?
@@ -85,9 +94,18 @@ namespace BirdAudioAnalysis
         /// <param name="numToTest">the number of data points to use as testing data</param>
         private void GetTrainingData(int numToTrain, int numToTest)
         {
+            // TODO: Explain why theres training data vs testing data in here. Explain how this helps avoid overfitting with training data
 
             // TODO: theres no comment on what is going on here. explain?
             // why are they 2D arrays? why are you giving it numToTrain * rootFolder length?
+
+            //Training data is seperated from testing data in order to prevent overfitting
+            // Overfitting is when the neural network fits all of our data we train it on, but in doing so
+            // misses the mark on other similar cases because of too much specific optimization
+            // So, we keep some of the data seperate to test the network on when we're done. if it trained well,
+            // then the network will perform on the test data just about as well as it does on the training data
+            // if it overfit the training data, then it will perform much worse on the testing data than on the training
+
             // These arrays hold all of the training and testing data
             // They are sized to how many data points they need to hold. The training data takes
             //  <numToTrain> data points from each data set (Each data set is represented by one entry in _rootFolders)
@@ -110,9 +128,9 @@ namespace BirdAudioAnalysis
                     Console.WriteLine("\nAnalyzing file {0}", file);
 
                     var analyzer = GetAnalyzerForFile(dataset, file, _defaultBufferSize);
-                    var theData = analyzer.GetFrequencies().ToArray();
+                    var frequencies = analyzer.GetFrequencies().ToArray();
 
-                    int sampleWindow = theData.Length;
+                    int sampleWindow = frequencies.Length;
                     int dataSize = analyzer.GetDataSize();
 
                     //find the max length of any of the samples
@@ -129,7 +147,7 @@ namespace BirdAudioAnalysis
                         trainingData[trainingIndex] = new DataType[sampleWindow * dataSize];
                         for (int j = 0; j < sampleWindow; j++)
                         {
-                            Array.Copy(theData[j], 0, trainingData[trainingIndex], j * dataSize, dataSize);
+                            Array.Copy(frequencies[j], 0, trainingData[trainingIndex], j * dataSize, dataSize);
                         }
                         trainingResultsExpected[trainingIndex] = GetExpectedResultForDataset(dataset);
                         trainingIndex++;
@@ -140,7 +158,7 @@ namespace BirdAudioAnalysis
                         testingData[testingIndex] = new DataType[sampleWindow * dataSize];
                         for (int j = 0; j < sampleWindow; j++)
                         {
-                            Array.Copy(theData[j], 0, testingData[testingIndex], j * dataSize, dataSize);
+                            Array.Copy(frequencies[j], 0, testingData[testingIndex], j * dataSize, dataSize);
                         }
                         testingResultsExpected[testingIndex] = GetExpectedResultForDataset(dataset);
                         testingIndex++;
@@ -172,14 +190,17 @@ namespace BirdAudioAnalysis
             _testing.SetTrainData(testingData, testingResultsExpected);
         }
 
-        /**
-         * Get a neural network that has been trained on the previously specified datasets
-         */
-        public NeuralNet TrainTheNetwork()
+
+        /// <summary>
+        /// Get a neural network that has been trained on the previously specified datasets
+        /// </summary>
+        /// <param name="testCases">The number of data points that should be used as test cases rather than training cases</param>
+        /// <returns></returns>
+        public NeuralNet TrainTheNetwork(int testCases)
         {
             // TODO: what is numToTest for?
             // How many data points out of each data set to use for testing
-            int numToTest = 3;
+            int numToTest = testCases;
             int numToTrain = _numFiles - numToTest;
             GetTrainingData(numToTrain, numToTest);
             
@@ -203,6 +224,8 @@ namespace BirdAudioAnalysis
 
             net.LearningMomentum = 0.5F;*/
 
+            //TODO: What does MSE mean
+            //I don't know what MSE means here, it is an artifact from the example FANN project
             Console.WriteLine("MSE error on train data: {0}", net.TestData(_training));
             Console.WriteLine("MSE error on test data:  {0}", net.TestData(_testing));
             
