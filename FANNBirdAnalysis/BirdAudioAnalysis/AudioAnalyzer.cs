@@ -72,6 +72,7 @@ namespace BirdAudioAnalysis
         {
 
             var reader = new AudioFileReader(_audioFile);
+            // TODO: When creating the AudioStreamReader, can you replace "_bufferSize / 2" with GetDataSize() 
             return (new AudioStreamReader(reader, _bufferSize, _bufferSize / 2, _trimSilence)).Select((floats) =>
             {
                 //Cast all of the floating point numbers to Complex numbers in preperation for the FFT
@@ -85,6 +86,7 @@ namespace BirdAudioAnalysis
             }).Select((complex) =>
             {
                 //Perform the FFT and throw away half of the resulting array; then cast to Datatype from Complex
+                // TODO: A little context on what is actually happening here would help. 
                 FourierTransform.FFT(complex, FourierTransform.Direction.Forward);
                 
                 return complex

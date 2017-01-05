@@ -39,6 +39,7 @@ namespace BirdAudioAnalysis
         }
 
 
+        // TODO: can you rename this to GetAnalyzerForDataSet or something? The method makes it seem like its for a singular audio file rather than a directory
         private AudioAnalyzer GetAnalyzerForFile(int dataset, int file, int bufferSize)
         {
             // TODO: why are you adding 1?
@@ -68,7 +69,7 @@ namespace BirdAudioAnalysis
 
         private void GetTrainingData(int numToTrain, int numToTest)
         {
-
+            // TODO: Explain why theres training data vs testing data in here. Explain how this helps avoid overfitting with training data
             // TODO: theres no comment on what is going on here. explain?
             // why are they 2D arrays? why are you giving it numToTrain * rootFolder length?
             int trainingIndex = 0;
@@ -90,6 +91,7 @@ namespace BirdAudioAnalysis
 
                     var analyzer = GetAnalyzerForFile(dataset, file, _defaultBufferSize);
                     var theData = analyzer.GetFrequencies().ToArray();
+                    // TODO: rename theData to frequencies...?
 
                     int sampleWindow = theData.Length;
                     int dataSize = analyzer.GetDataSize();
@@ -152,6 +154,7 @@ namespace BirdAudioAnalysis
         public NeuralNet TrainTheNetwork()
         {
             // TODO: what is numToTest for?
+            // TODO: should numToTest not be static? Should you pass it in?
             int numToTest = 3;
             int numToTrain = _numFiles - numToTest;
             GetTrainingData(numToTrain, numToTest);
@@ -168,6 +171,7 @@ namespace BirdAudioAnalysis
 
             net.LearningMomentum = 0.5F;*/
 
+            //TODO: What does MSE mean
             Console.WriteLine("MSE error on train data: {0}", net.TestData(_training));
             Console.WriteLine("MSE error on test data:  {0}", net.TestData(_testing));
             

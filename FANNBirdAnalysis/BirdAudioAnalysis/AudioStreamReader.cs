@@ -10,8 +10,8 @@ using NAudio.Wave;
 namespace BirdAudioAnalysis
 {
     /**
-     * Class to read in the raw floading point samples from an audio file, and provide a rolling window over the data
-     * Will give a window of width ChunkSize and each next sample will be offset by Offset samples
+     * This class will read in the raw floating point samples from an audio file, and provide a rolling window over the data.
+     * This will give a window of width ChunkSize and each next sample will be offset by Offset samples
      * EX:
      * ChunkSize of 4 and Offset of 2. The number |-#-| indicates a unique window of samples, numbered in order that they are returned
      * Samples:
@@ -85,13 +85,15 @@ namespace BirdAudioAnalysis
                         //if we're reading noise, check to make sure it hasn't gotten quiet enough to count as silence
                         // TODO: so... why do we care if its silent vs if its not? maybe say that in the silence portion? or here?
                         //copy the old buffer data in the mainBuffer over into the transfer buffer; at an offset of its original position
+                        //TODO: should this be done after the silence threshold is checked?
                         Array.Copy(mainBuffer, _offset, transferBuffer, 0, _chunksize - _offset);
                         mainBuffer = transferBuffer;
 
                         //get the average amplitude of the buffer
                         float avgBufferIntensity = transferBuffer.Average(sample => Math.Abs(sample));
-                        
+
                         //if the average intensity is too low, we're reading silence and should go into the silence state
+                        // TODO: Why is this different from the conditional in the ReadingState.Silence switch block? ie: "avgBufferIntensity < SilenceThreshold/2" vs "avgBufferIntensity < SilenceThreshold"
                         if (avgBufferIntensity < SilenceThreshold/2)
                         {
                             _state = ReadingState.Silence;
