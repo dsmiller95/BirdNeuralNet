@@ -67,7 +67,7 @@ namespace BirdAudioAnalysis
 		 */
 		private DataType[] GetExpectedResultForDataset(int dataset)
 		{
-			var result = new DataType[_rootFolders.Length];
+			var result = new DataType[_rootFolders.Length + 1];
 			for(int i = 0; i < result.Length; i++)
 			{
 				result[i] = -0.01F;
@@ -99,8 +99,12 @@ namespace BirdAudioAnalysis
 			//  <numToTrain> data points from each data set (Each data set is represented by one entry in _rootFolders)
 			//  And the same is done for the testing data
 			int trainingIndex = 0;
-			DataType[][] trainingData = new DataType[numToTrain * _rootFolders.Length][];
-			DataType[][] trainingResultsExpected = new DataType[numToTrain * _rootFolders.Length][];
+			DataType[][] trainingData = new DataType[numToTrain * _rootFolders.Length + 1][];
+			DataType[][] trainingResultsExpected = new DataType[numToTrain * _rootFolders.Length + 1][];
+
+		    trainingData[trainingData.Length - 1] = new DataType[] {0};
+		    trainingResultsExpected[trainingResultsExpected.Length - 1] = GetExpectedResultForDataset(_rootFolders.Length);
+            
 
 			int testingIndex = 0;
 			DataType[][] testingData = new DataType[numToTest * _rootFolders.Length][];
@@ -191,27 +195,28 @@ namespace BirdAudioAnalysis
 			
 			//Neural network setup
 			//the number of layers of neurons in the neural network
-			const uint numLayers = 4;
+			const uint numLayers = 3;
 			//The number of input neurons the neural network (how many data points it can process all at once)
 			uint numInput = _training.InputCount;
 			//The number of hidden nuerons. these are in the hidden layer. 100 was picked arbitrarily, with this implementation it could
 			// conceivably be as high as 10000. but 100 worked for this test application
-			const uint numNeuronsHidden = 50;
-			const uint numNeuronsHidden2 = 200;
+			const uint numNeuronsHidden = 200;
+			const uint numNeuronsHidden2 = 50;
 			//The number of output neurons. Each output neuron represents one classification
 			// I.E. if you wanted to tell the difference between a robin, a sparrow, and a humingbird, you'd have 3 output neurons
 			uint numOutput = _training.OutputCount;
 			//The amount of MSE error looked for in the network, the network will stop training once it reaches this amount of error or lower
-			const float desiredError = 0.001F;
+			
 
 			Console.WriteLine("Creating neural network with: \nNumber of Layers: {0} \nNumber of Inputs: {1} \n Number of Outputs: {2} \nNumber of Hidden Neurons: {3}", numLayers, numInput, numOutput, numNeuronsHidden);
 
-			NeuralNet net = new NeuralNet(NetworkType.LAYER, numLayers, numInput, numNeuronsHidden, numNeuronsHidden2, numOutput);
+			NeuralNet net = new NeuralNet(NetworkType.LAYER, numLayers, numInput, numNeuronsHidden, numOutput);
 			//NeuralNet net = new NeuralNet("birdneuralnet.net");
 
 			net.TrainingAlgorithm = TrainingAlgorithm.TRAIN_INCREMENTAL;
 
-			net.LearningMomentum = 0.7F;
+            float desiredError = 0.1F;
+            net.LearningMomentum = 0.7F;
 
 			Console.WriteLine("MSE error on train data: {0}", net.TestData(_training));
 			Console.WriteLine("MSE error on test data:  {0}", net.TestData(_testing));
@@ -221,8 +226,15 @@ namespace BirdAudioAnalysis
 			Console.WriteLine("MSE error on train data: {0}", net.TestData(_training));
 			Console.WriteLine("MSE error on test data:  {0}", net.TestData(_testing));
 
-			//output the raw results from the test data
-			var testData = _testing.Input;
+            desiredError = 0.01F;
+            net.TrainingAlgorithm = TrainingAlgorithm.TRAIN_QUICKPROP;
+            net.TrainOnData(_training, 5000, 5, desiredError);
+
+            Console.WriteLine("MSE error on train data: {0}", net.TestData(_training));
+            Console.WriteLine("MSE error on test data:  {0}", net.TestData(_testing));
+
+            //output the raw results from the test data
+            var testData = _testing.Input;
 			foreach(var testSet in testData)
 			{
 				var result = net.Run(testSet);

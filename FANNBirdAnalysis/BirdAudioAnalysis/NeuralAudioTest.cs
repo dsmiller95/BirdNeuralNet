@@ -50,12 +50,12 @@ namespace BirdAudioAnalysis
 			string[] fileSetRoots =
 			{
 				toneRoot + "BlackCappedChickadee\\",
-				toneRoot + "AmericanCrow\\"//,
+				toneRoot + "AmericanCrow\\"
 				//toneRoot + "WildTurkey\\"
 			};
 
 			//get our trained neural network!
-			var audioTrainer = new NeuralAudioTrainer(fileSetRoots, 10, trimSilence: true);
+			var audioTrainer = new NeuralAudioTrainer(fileSetRoots, 10, trimSilence: false);
 			var network = audioTrainer.TrainTheNetwork(7);
 
 			Console.WriteLine("Loading files to test against");
@@ -65,8 +65,7 @@ namespace BirdAudioAnalysis
 
 			for (var i = 0; i < streamingRoots.Length; i++)
 			{
-				var result1 = 0.0F;
-				var result2 = 0.0F;
+			    var avgResult = new float[3];
 
 				Console.WriteLine("Testing against Stream {0}", i);
 
@@ -75,34 +74,18 @@ namespace BirdAudioAnalysis
 
 				//stream the audio data through the neural network, and print out the first 50 results
 				var stream = new NeuralAudioStreamer(network, streamingRoots[i]);
-				stream.GetResultStream().Take(50).Select((results) =>
-					{
-						var tempResult = 0.0F;
-						var isSecondResult = false;
-						foreach (var result in results)
+			    var len = stream.GetResultStream().Take(50).Select((results) =>
+			        {
+						for (var j = 0; j < results.Length; j++)
 						{
-							Console.Write("{0:0.000}  ", result);
-							if (isSecondResult)
-							{
-								isSecondResult = false;
-								//Only add them to the average if they are not equal
-								if(tempResult != result)
-								{
-									result1 += tempResult;
-									result2 += result;
-								}
-							}
-							else
-							{
-								isSecondResult = true;
-								tempResult = result;
-							}
+							Console.Write("{0:0.000}  ", results[j]);
+						    avgResult[j] += results[j];
 						}
-						Console.WriteLine("");
-						return 0;
-					}).ToList();
+			            Console.WriteLine("");
+			            return 0;
+			        }).ToList().Count;
 
-				Console.WriteLine("The guess is for audio file {0} is: {1} chickadee, {2} crow", filename[6], (result1 / 50), (result2 / 50));
+				Console.WriteLine("The guess is for audio file {0} is: {1} chickadee, {2} crow", filename[6], (avgResult[0] / len), (avgResult[1] / len), (avgResult[2] / len));
 			}
 
 			//Console.WriteLine("\nPrinting Network Connections");
