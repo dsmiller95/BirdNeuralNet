@@ -200,7 +200,7 @@ namespace BirdAudioAnalysis
 			uint numInput = _training.InputCount;
 			//The number of hidden nuerons. these are in the hidden layer. 100 was picked arbitrarily, with this implementation it could
 			// conceivably be as high as 10000. but 100 worked for this test application
-			const uint numNeuronsHidden = 200;
+			const uint numNeuronsHidden = 50;
 			const uint numNeuronsHidden2 = 50;
 			//The number of output neurons. Each output neuron represents one classification
 			// I.E. if you wanted to tell the difference between a robin, a sparrow, and a humingbird, you'd have 3 output neurons
