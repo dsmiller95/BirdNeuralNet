@@ -75,6 +75,7 @@ namespace BirdAudioAnalysis
 				Console.WriteLine("File tested: {0}", filename[6]);
 
 				//stream the audio data through the neural network, and print out the first 50 results
+
 				var stream = new NeuralAudioStreamer(network, streamingRoots[i], bufferSize: buffersize);
 			    var len = stream.GetResultStream().Select((results) =>
 			        {
@@ -86,8 +87,8 @@ namespace BirdAudioAnalysis
 			            Console.WriteLine("");
 			            return 0;
 			        }).ToList().Count;
-
-				Console.WriteLine("The guess is for audio file {0} is: {1} chickadee, {2} crow", filename[6], (avgResult[0] / len), (avgResult[1] / len), (avgResult[2] / len));
+				Console.WriteLine("Length: " + len);
+				Console.WriteLine("The guess is for audio file {0} is: {1} chickadee, {2} crow, none: {3}", filename[6], (avgResult[0] / len), (avgResult[1] / len), (avgResult[2] / len));
 			}
 
 			//Console.WriteLine("\nPrinting Network Connections");
