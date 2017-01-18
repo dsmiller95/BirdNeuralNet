@@ -54,8 +54,10 @@ namespace BirdAudioAnalysis
 				//toneRoot + "WildTurkey\\"
 			};
 
+		    int buffersize = 1024;
+
 			//get our trained neural network!
-			var audioTrainer = new NeuralAudioTrainer(fileSetRoots, 10, trimSilence: false);
+			var audioTrainer = new NeuralAudioTrainer(fileSetRoots, 10, trimSilence: false, bufferSize: buffersize);
 			var network = audioTrainer.TrainTheNetwork(7);
 
 			Console.WriteLine("Loading files to test against");
@@ -73,8 +75,8 @@ namespace BirdAudioAnalysis
 				Console.WriteLine("File tested: {0}", filename[6]);
 
 				//stream the audio data through the neural network, and print out the first 50 results
-				var stream = new NeuralAudioStreamer(network, streamingRoots[i]);
-			    var len = stream.GetResultStream().Take(50).Select((results) =>
+				var stream = new NeuralAudioStreamer(network, streamingRoots[i], bufferSize: buffersize);
+			    var len = stream.GetResultStream().Select((results) =>
 			        {
 						for (var j = 0; j < results.Length; j++)
 						{
