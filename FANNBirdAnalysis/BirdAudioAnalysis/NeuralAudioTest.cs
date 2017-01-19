@@ -50,25 +50,25 @@ namespace BirdAudioAnalysis
 			string[] fileSetRoots =
 			{
 				toneRoot + "BlackCappedChickadee\\",
-				toneRoot + "AmericanCrow\\"
-				//toneRoot + "WildTurkey\\"
+				toneRoot + "AmericanCrow\\",
+				toneRoot + "WildTurkey\\"
 			};
 
 		    int buffersize = 1024;
 
 			//get our trained neural network!
 			var audioTrainer = new NeuralAudioTrainer(fileSetRoots, 10, trimSilence: false, bufferSize: buffersize);
-			var network = audioTrainer.TrainTheNetwork(7);
+			var network = audioTrainer.TrainTheNetwork(3);
 
 			Console.WriteLine("Loading files to test against");
 
 			toneRoot = "..\\..\\..\\DataSets\\Audio\\Birds\\";
-			string[] streamingRoots = { toneRoot + "chickadee17.mp3", toneRoot + "crow13.mp3"}; //, toneRoot + "wildturkey12.mp3" 
+			string[] streamingRoots = { toneRoot + "chickadee17.mp3", toneRoot + "crow13.mp3", toneRoot + "wildturkey12.mp3" }; 
 
 			for (var i = 0; i < streamingRoots.Length; i++)
 			{
-			    var avgResult = new float[3];
-
+			    //var avgResult = new float[3];
+				var avgResult = new float[4]; 
 				Console.WriteLine("Testing against Stream {0}", i);
 
 				var filename = streamingRoots[i].Split('\\');
@@ -88,17 +88,15 @@ namespace BirdAudioAnalysis
 			            return 0;
 			        }).ToList().Count;
 				Console.WriteLine("Length: " + len);
-				Console.WriteLine("The guess is for audio file {0} is: {1} chickadee, {2} crow, none: {3}", filename[6], (avgResult[0] / len), (avgResult[1] / len), (avgResult[2] / len));
+				//Console.WriteLine("The guess is for audio file {0} is: {1} chickadee, {2} crow, none: {3}", filename[6], (avgResult[0] / len), (avgResult[1] / len), (avgResult[2] / len));
+				Console.WriteLine("The guess is for audio file {0} is: {1} chickadee, {2} crow, {3} wild turkey, {4} none", filename[6], (avgResult[0] / len), (avgResult[1] / len), (avgResult[2] / len), (avgResult[3] / len));
 			}
-
-			//Console.WriteLine("\nPrinting Network Connections");
-			//network.PrintConnections();
 
 			Console.WriteLine("Press the any key to exit");
 			Console.ReadKey();
 
 			//save network
-			//network.Save("birdneuralnet.net");
+			network.Save("birdneuralnet.net");
 			//destroy the network?
 			network.Dispose();
 		}
