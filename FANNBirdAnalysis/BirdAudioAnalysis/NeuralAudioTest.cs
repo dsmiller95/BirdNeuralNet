@@ -57,13 +57,15 @@ namespace BirdAudioAnalysis
 		    int buffersize = 1024;
 
 			//get our trained neural network!
-			var audioTrainer = new NeuralAudioTrainer(fileSetRoots, 10, trimSilence: false, bufferSize: buffersize);
+			var audioTrainer = new NeuralAudioTrainer(fileSetRoots, 10, trimSilence: false, bufferSize: buffersize, desiredError: 0.02F);
 			var network = audioTrainer.TrainTheNetwork(3);
 
 			Console.WriteLine("Loading files to test against");
 
 			toneRoot = "..\\..\\..\\DataSets\\Audio\\Birds\\";
-			string[] streamingRoots = { toneRoot + "chickadee17.mp3", toneRoot + "crow13.mp3", toneRoot + "wildturkey12.mp3" }; 
+			string[] streamingRoots = { toneRoot + "chickadee17.mp3", toneRoot + "crow13.mp3", toneRoot + "wildturkey12.mp3" };
+
+		    string printableResults = String.Format("{0, 16} {1, 10}\t {2, 5}\t {3, 5}\t {4, 5}\n", "File", "Chickadee", "Crow", "Turkey", "None");
 
 			for (var i = 0; i < streamingRoots.Length; i++)
 			{
@@ -88,16 +90,21 @@ namespace BirdAudioAnalysis
 			            return 0;
 			        }).ToList().Count;
 				Console.WriteLine("Length: " + len);
-				//Console.WriteLine("The guess is for audio file {0} is: {1} chickadee, {2} crow, none: {3}", filename[6], (avgResult[0] / len), (avgResult[1] / len), (avgResult[2] / len));
+                //Console.WriteLine("The guess is for audio file {0} is: {1} chickadee, {2} crow, none: {3}", filename[6], (avgResult[0] / len), (avgResult[1] / len), (avgResult[2] / len));
+
+                printableResults += string.Format("{0, 16} {1, 10:0.000}\t {2, 5:0.000}\t {3, 5:0.000}\t{4, 5:0.000}\n", filename[6], (avgResult[0]/len), (avgResult[1]/len), (avgResult[2]/len), (avgResult[3]/len));
 				Console.WriteLine("The guess is for audio file {0} is: {1} chickadee, {2} crow, {3} wild turkey, {4} none", filename[6], (avgResult[0] / len), (avgResult[1] / len), (avgResult[2] / len), (avgResult[3] / len));
 			}
-
+		    Console.WriteLine(printableResults);
 			Console.WriteLine("Press the any key to exit");
-			Console.ReadKey();
+			var key = Console.ReadKey();
 
-			//save network
-			network.Save("birdneuralnet.net");
-			//destroy the network?
+		    if (key.KeyChar == 's')
+		    {
+                //save network
+                network.Save("birdneuralnet.net");
+            }
+			//free up the used memory
 			network.Dispose();
 		}
 	}
