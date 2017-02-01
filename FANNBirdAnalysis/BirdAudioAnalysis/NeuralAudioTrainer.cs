@@ -36,12 +36,16 @@ namespace BirdAudioAnalysis
 		//Whether or not silence should be trimmed from the input audio files in the audio file reader
 		private readonly bool _trimSilence;
 
-		public NeuralAudioTrainer(string[] rootFolders, int numFiles, int bufferSize = 4096, bool trimSilence = false)
+        //The target level or error on the final neural network
+	    private readonly float _finalError;
+
+		public NeuralAudioTrainer(string[] rootFolders, int numFiles, int bufferSize = 4096, bool trimSilence = false, float desiredError = 0.01F)
 		{
 			_rootFolders = rootFolders;
 			_numFiles = numFiles;
 			_defaultBufferSize = bufferSize;
 			_trimSilence = trimSilence;
+			_finalError = desiredError;
 		}
 
 		/// <summary>
@@ -226,7 +230,7 @@ namespace BirdAudioAnalysis
 			Console.WriteLine("MSE error on train data: {0}", net.TestData(_training));
 			Console.WriteLine("MSE error on test data:  {0}", net.TestData(_testing));
 
-            desiredError = 0.01F;
+            desiredError = _finalError;
             net.TrainingAlgorithm = TrainingAlgorithm.TRAIN_QUICKPROP;
             net.TrainOnData(_training, 5000, 5, desiredError);
 
