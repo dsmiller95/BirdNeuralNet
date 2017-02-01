@@ -2,6 +2,8 @@
 using System.Linq;
 using NAudio.Wave;
 using System.IO;
+using System.Collections.Generic;
+
 
 namespace BirdAudioAnalysis
 {
@@ -17,38 +19,26 @@ namespace BirdAudioAnalysis
 		 * the length of the audio file.
 		 * Returns: a 2D array of floats containing the randomly copied audio
 		 */
-		public float[][] SplitAudio(string audioFilePath)
+		public float[][] SplitAudio(IEnumerable<float> originalBuffer)
 		{
-			var reader = new AudioFileReader(audioFilePath);
-			var length = reader.Length;
+			//var reader = new AudioFileReader(audioFilePath);
+			var length = originalBuffer.Count();
 			var numGenFiles = (int)(length / chunkSize);
 
 			float[][] result = new float[numGenFiles + 1][];
 
-			byte[] buffer = new byte[length];
-			reader.Read(buffer, 0, buffer.Length);
+			//byte[] buffer = new byte[length];
+			//reader.Read(buffer, 0, buffer.Length);
 
 			for (int i = 0; i < numGenFiles; i++)
 			{
 				Random random = new Random();
 				var randOffset = random.Next((int)length);
 
-				var tempBufferIenumerable = buffer.Skip(randOffset).Take((int)(chunkSize));
+				var tempBufferIenumerable = originalBuffer.Skip(randOffset).Take((int)(chunkSize));
 				var tempBuffer = tempBufferIenumerable.ToArray();
 
-				float[] transferBuffer = new float[chunkSize];
-
-				// Copy the newly read data to the transfer buffer and convert to floats
-				for (int x = 0; x < randOffset; x++)
-				{
-					transferBuffer[x] = BitConverter.ToSingle(tempBuffer, x);
-				}
-
-				result[i] = transferBuffer;
-
-				//This can be removed at some point.
-				var tempLocation = "C:\\Users\\heinzer.AD\\Desktop\\" + i + ".wav";
-				File.WriteAllBytes(tempLocation, tempBuffer);
+				result[i] = tempBuffer;
 			}
 
 			return result;
