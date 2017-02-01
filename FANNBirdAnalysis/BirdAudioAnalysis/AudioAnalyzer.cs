@@ -113,5 +113,41 @@ namespace BirdAudioAnalysis
 					.ToArray();
 			});
 		}
+
+		public IEnumerable<DataType[]> GetTrainingFrequencies()
+		{
+			AudioSplitter audioSplitter = new AudioSplitter();
+			var results = audioSplitter.SplitAudio(_audioFilePath);
+
+			return results.ToList().Select((floats) =>
+			{
+				//Cast all of the floating point numbers to Complex numbers in preperation for the FFT
+				//We need to cast to complex numbers here because this particular library forces us to
+				//Technically, the FFT is an operation on complex numbers and returns complex numbers. but in this case
+				// we're representing a real number as Complex data type so that the library will accept our data
+				Complex[] complex = new Complex[_bufferSize];
+				for (int i = 0; i < floats.Length; i++)
+				{
+					complex[i] = new Complex(floats[i], 0);
+				}
+				return complex;
+			}).Select((complex) =>
+			{
+				//Perform the FFT and throw away half of the resulting array; then cast to Datatype from Complex
+
+				// https://en.wikipedia.org/wiki/Fast_Fourier_transform
+				// https://upload.wikimedia.org/wikipedia/commons/5/50/Fourier_transform_time_and_frequency_domains.gif
+				// The FFT is an algorith to perform a fourier transformation. this transformation effectively gives us
+				//  the amplitudes of sin and cosine waves at specific frequencies that can be used to compose the input sample when added together
+				FourierTransform.FFT(complex, FourierTransform.Direction.Forward);
+
+				return complex
+					//throw away half because the FFT is Symmetric when all inputs are real number
+					.Take(complex.Length / 2)
+					.Select((comp) => (DataType)Math.Abs(comp.Magnitude))
+					.ToArray();
+			}));
+
+		}
 	}
 }

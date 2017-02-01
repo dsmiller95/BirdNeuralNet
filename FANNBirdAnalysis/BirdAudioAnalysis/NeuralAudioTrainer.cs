@@ -42,20 +42,20 @@ namespace BirdAudioAnalysis
 			_numFiles = numFiles;
 			_defaultBufferSize = bufferSize;
 			_trimSilence = trimSilence;
-		}   
+		}
 
 		/// <summary>
 		/// Get an audio analyzer for one file
 		/// </summary>
-		/// <param name="dataset">the number (index) of the dataset to get the file from</param>
-		/// <param name="file">the number or index of the file within the dataset to grab</param>
+		/// <param name="datasetNum">the number (index) of the dataset to get the file from</param>
+		/// <param name="fileNum">the number or index of the file within the dataset to grab</param>
 		/// <param name="bufferSize">the size of the buffer to use in the audio analyzer</param>
 		/// <returns></returns>
-		private AudioAnalyzer GetAnalyzerForFile(int dataset, int file, int bufferSize)
+		private AudioAnalyzer GetAnalyzerForFile(int datasetNum, int fileNum, int bufferSize)
 		{
 			//Add one to file name so that they can start numbering at 1
-			file += 1;
-			return new AudioAnalyzer(_rootFolders[dataset] + file.ToString("D2") + ".mp3", bufferSize, 44100, _trimSilence);
+			fileNum += 1;
+			return new AudioAnalyzer(_rootFolders[datasetNum] + fileNum.ToString("D2") + ".mp3", bufferSize, 44100, _trimSilence);
 		}
 
 		/**
@@ -113,13 +113,13 @@ namespace BirdAudioAnalysis
 			//maximum length out of all the samples; so that the rest can be padded with 0 to match the same size
 			//The samples need to be of the same length
 			int maxLength = 0;
-			for (int dataset = 0; dataset < _rootFolders.Length; dataset++)
+			for (int datasetNum = 0; datasetNum < _rootFolders.Length; datasetNum++)
 			{
-				for (int file = 0; file < _numFiles; file++)
+				for (int fileNum = 0; fileNum < _numFiles; fileNum++)
 				{
-					Console.WriteLine("\nAnalyzing file {0}", file);
+					Console.WriteLine("\nAnalyzing file {0}", fileNum);
 
-					var analyzer = GetAnalyzerForFile(dataset, file, _defaultBufferSize);
+					var analyzer = GetAnalyzerForFile(datasetNum, fileNum, _defaultBufferSize);
 					var frequencies = analyzer.GetFrequencies().ToArray();
 
 					int sampleWindow = frequencies.Length;
@@ -132,7 +132,7 @@ namespace BirdAudioAnalysis
 					}
 
 					//if our file counter is less than the number of data points we want in our training data set
-					if (file < numToTrain)
+					if (fileNum < numToTrain)
 					{
 						//collect training data
 						trainingData[trainingIndex] = new DataType[sampleWindow * dataSize];
@@ -140,7 +140,7 @@ namespace BirdAudioAnalysis
 						{
 							Array.Copy(frequencies[j], 0, trainingData[trainingIndex], j * dataSize, dataSize);
 						}
-						trainingResultsExpected[trainingIndex] = GetExpectedResultForDataset(dataset);
+						trainingResultsExpected[trainingIndex] = GetExpectedResultForDataset(datasetNum);
 						trainingIndex++;
 					}
 					else
@@ -151,7 +151,7 @@ namespace BirdAudioAnalysis
 						{
 							Array.Copy(frequencies[j], 0, testingData[testingIndex], j * dataSize, dataSize);
 						}
-						testingResultsExpected[testingIndex] = GetExpectedResultForDataset(dataset);
+						testingResultsExpected[testingIndex] = GetExpectedResultForDataset(datasetNum);
 						testingIndex++;
 					}
 				}
