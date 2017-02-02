@@ -21,14 +21,10 @@ namespace BirdAudioAnalysis
 		 */
 		public float[][] SplitAudio(IEnumerable<float> originalBuffer)
 		{
-			//var reader = new AudioFileReader(audioFilePath);
 			var length = originalBuffer.Count();
 			var numGenFiles = (int)(length / chunkSize);
 
 			float[][] result = new float[numGenFiles + 1][];
-
-			//byte[] buffer = new byte[length];
-			//reader.Read(buffer, 0, buffer.Length);
 
 			for (int i = 0; i < numGenFiles; i++)
 			{
