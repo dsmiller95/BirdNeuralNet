@@ -74,17 +74,19 @@ namespace BirdAudioAnalysis
 			//divided by 2 becaust the FFT is symmetric on inputs of all real numbers; only half of the array carries all of the information
 			return _bufferSize/2;
 		}
+        
 
-		/*
+        /*
 		 * Reads in the audio file specified by reader, taking in bufferSize number of samples in each chunk to be analyzed
 		 * Returns an enumerable composed of lists of the frequency bins
 		 */
-		public IEnumerable<DataType[]> GetFrequencies()
+        public IEnumerable<DataType[]> GetFrequencies()
 		{
 			
 			var reader = new AudioFileReader(_audioFilePath);
+            var bufferedStream = new AudioStreamReader(reader).RollingBuffer(_bufferSize, _bufferSize/2);
 
-			return (new AudioStreamReader(reader, _bufferSize, _bufferSize / 2, _trimSilence)).Select((floats) =>
+			return (bufferedStream).Select((floats) =>
 			{
 				//Cast all of the floating point numbers to Complex numbers in preperation for the FFT
 				//We need to cast to complex numbers here because this particular library forces us to
@@ -116,8 +118,8 @@ namespace BirdAudioAnalysis
 
 		public void GetTrainingFrequencies()
 		{
-			AudioSplitter audioSplitter = new AudioSplitter();
-			var results = audioSplitter.SplitAudio(_audioFilePath);
+			//AudioSplitter audioSplitter = new AudioSplitter();
+			//var results = audioSplitter.SplitAudio(_audioFilePath);
 
 			
 			

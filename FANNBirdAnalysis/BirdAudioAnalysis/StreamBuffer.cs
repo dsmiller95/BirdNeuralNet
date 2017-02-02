@@ -11,7 +11,21 @@ namespace BirdAudioAnalysis
 {
     public static class StreamBuffer
     {
-
+        /// <summary>
+        /// and provide a rolling window over the data.
+        /// This will give a window of width ChunkSize and each next sample will be offset by Offset samples
+        /// EX:
+        /// ChunkSize of 4 and Offset of 2. The number |-#-| indicates a unique window of samples, numbered in order that they are returned
+        /// Samples:
+        ///      |--2---||--4---||--6---|
+        ///  |---1--||--3---||--5---||--7---|
+        ///  * * * * * * * * * * * * * * * * *
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input">the Enumerable to be buffered</param>
+        /// <param name="chunksize">Size of each buffer returned</param>
+        /// <param name="offset">Number of samples skipped over between each buffer</param>
+        /// <returns></returns>
         public static IEnumerable<T[]> RollingBuffer<T>(this IEnumerable<T> input, int chunksize, int offset)
         {
             //buffer to hold all the sample data points
@@ -20,7 +34,7 @@ namespace BirdAudioAnalysis
             var enumer = input.GetEnumerator();
 
             //read in a full buffer of data to start and return it
-            for (var i = 0; i < chunksize; i++)
+            /*for (var i = 0; i < chunksize; i++)
             {
                 if (enumer.MoveNext())
                 {
@@ -31,7 +45,7 @@ namespace BirdAudioAnalysis
                     goto exitLoop;
                 }
             }
-            yield return mainBuffer;
+            yield return mainBuffer;*/
 
             while (true)
             {
