@@ -36,8 +36,8 @@ namespace BirdAudioAnalysis
 		//Whether or not silence should be trimmed from the input audio files in the audio file reader
 		private readonly bool _trimSilence;
 
-        //The target level or error on the final neural network
-	    private readonly float _finalError;
+		//The target level or error on the final neural network
+		private readonly float _finalError;
 
 		public NeuralAudioTrainer(string[] rootFolders, int numFiles, int bufferSize = 4096, bool trimSilence = false, float desiredError = 0.01F)
 		{
@@ -106,9 +106,9 @@ namespace BirdAudioAnalysis
 			DataType[][] trainingData = new DataType[numToTrain * _rootFolders.Length + 1][];
 			DataType[][] trainingResultsExpected = new DataType[numToTrain * _rootFolders.Length + 1][];
 
-		    trainingData[trainingData.Length - 1] = new DataType[] {0};
-		    trainingResultsExpected[trainingResultsExpected.Length - 1] = GetExpectedResultForDataset(_rootFolders.Length);
-            
+			trainingData[trainingData.Length - 1] = new DataType[] {0};
+			trainingResultsExpected[trainingResultsExpected.Length - 1] = GetExpectedResultForDataset(_rootFolders.Length);
+			
 
 			int testingIndex = 0;
 			DataType[][] testingData = new DataType[numToTest * _rootFolders.Length][];
@@ -219,8 +219,8 @@ namespace BirdAudioAnalysis
 
 			net.TrainingAlgorithm = TrainingAlgorithm.TRAIN_INCREMENTAL;
 
-            float desiredError = 0.1F;
-            net.LearningMomentum = 0.7F;
+			float desiredError = 0.1F;
+			net.LearningMomentum = 0.7F;
 
 			Console.WriteLine("MSE error on train data: {0}", net.TestData(_training));
 			Console.WriteLine("MSE error on test data:  {0}", net.TestData(_testing));
@@ -230,15 +230,15 @@ namespace BirdAudioAnalysis
 			Console.WriteLine("MSE error on train data: {0}", net.TestData(_training));
 			Console.WriteLine("MSE error on test data:  {0}", net.TestData(_testing));
 
-            desiredError = _finalError;
-            net.TrainingAlgorithm = TrainingAlgorithm.TRAIN_QUICKPROP;
-            net.TrainOnData(_training, 5000, 5, desiredError);
+			desiredError = _finalError;
+			net.TrainingAlgorithm = TrainingAlgorithm.TRAIN_QUICKPROP;
+			net.TrainOnData(_training, 5000, 5, desiredError);
 
-            Console.WriteLine("MSE error on train data: {0}", net.TestData(_training));
-            Console.WriteLine("MSE error on test data:  {0}", net.TestData(_testing));
+			Console.WriteLine("MSE error on train data: {0}", net.TestData(_training));
+			Console.WriteLine("MSE error on test data:  {0}", net.TestData(_testing));
 
-            //output the raw results from the test data
-            var testData = _testing.Input;
+			//output the raw results from the test data
+			var testData = _testing.Input;
 			foreach(var testSet in testData)
 			{
 				var result = net.Run(testSet);

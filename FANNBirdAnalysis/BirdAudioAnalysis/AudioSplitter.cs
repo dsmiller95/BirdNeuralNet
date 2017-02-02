@@ -19,25 +19,21 @@ namespace BirdAudioAnalysis
 		 * the length of the audio file.
 		 * Returns: a 2D array of floats containing the randomly copied audio
 		 */
-		public float[][] SplitAudio(IEnumerable<float> originalBuffer)
+		public IEnumerable<IEnumerable<float>> SplitAudio(IEnumerable<float> originalBuffer)
 		{
 			var length = originalBuffer.Count();
 			var numGenFiles = (int)(length / chunkSize);
-
-			float[][] result = new float[numGenFiles + 1][];
 
 			for (int i = 0; i < numGenFiles; i++)
 			{
 				Random random = new Random();
 				var randOffset = random.Next((int)length);
 
-				var tempBufferIenumerable = originalBuffer.Skip(randOffset).Take((int)(chunkSize));
-				var tempBuffer = tempBufferIenumerable.ToArray();
+				var tempBufferIEnumerable = originalBuffer.Skip(randOffset).Take((int)(chunkSize));
+				//var tempBuffer = tempBufferIEnumerable.ToArray();
 
-				result[i] = tempBuffer;
+				yield return tempBufferIEnumerable;
 			}
-
-			return result;
 		}
 	}
 }

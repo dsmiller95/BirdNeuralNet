@@ -74,18 +74,34 @@ namespace BirdAudioAnalysis
 			//divided by 2 becaust the FFT is symmetric on inputs of all real numbers; only half of the array carries all of the information
 			return _bufferSize/2;
 		}
-        
+		
 
-        /*
+		/*
 		 * Reads in the audio file specified by reader, taking in bufferSize number of samples in each chunk to be analyzed
 		 * Returns an enumerable composed of lists of the frequency bins
 		 */
-        public IEnumerable<DataType[]> GetFrequencies()
+		public IEnumerable<DataType[]> GetFrequencies()
 		{
 			
 			var reader = new AudioFileReader(_audioFilePath);
-            var bufferedStream = new AudioStreamReader(reader).RollingBuffer(_bufferSize, _bufferSize/2);
+			var bufferedStream = new AudioStreamReader(reader).RollingBuffer(_bufferSize, _bufferSize/2);
+			return FastFourierTransform(bufferedStream);
+		}
 
+		public IEnumerable<IEnumerable<DataType[]>> GetTrainingFrequencies()
+		{
+			AudioSplitter audioSplitter = new AudioSplitter();
+			var reader = new AudioFileReader(_audioFilePath);
+			var listBufferedStream = audioSplitter.SplitAudio(new AudioStreamReader(reader));//.RollingBuffer(_bufferSize, _bufferSize / 2);
+			return audioSplitter.SplitAudio(new AudioStreamReader(reader)).Select((sample) =>
+			{
+				var bufferedStream = sample.RollingBuffer(_bufferSize, _bufferSize / 2);
+				return FastFourierTransform(bufferedStream);
+			});
+		}
+
+		public IEnumerable<float[]> FastFourierTransform(IEnumerable<float[]> bufferedStream)
+		{
 			return (bufferedStream).Select((floats) =>
 			{
 				//Cast all of the floating point numbers to Complex numbers in preperation for the FFT
@@ -107,22 +123,13 @@ namespace BirdAudioAnalysis
 				// The FFT is an algorith to perform a fourier transformation. this transformation effectively gives us
 				//  the amplitudes of sin and cosine waves at specific frequencies that can be used to compose the input sample when added together
 				FourierTransform.FFT(complex, FourierTransform.Direction.Forward);
-				
+
 				return complex
 					//throw away half because the FFT is Symmetric when all inputs are real number
 					.Take(complex.Length / 2)
-					.Select((comp) => (DataType) Math.Abs(comp.Magnitude))
+					.Select((comp) => (DataType)Math.Abs(comp.Magnitude))
 					.ToArray();
 			});
-		}
-
-		public void GetTrainingFrequencies()
-		{
-			//AudioSplitter audioSplitter = new AudioSplitter();
-			//var results = audioSplitter.SplitAudio(_audioFilePath);
-
-			
-			
 		}
 	}
 }
