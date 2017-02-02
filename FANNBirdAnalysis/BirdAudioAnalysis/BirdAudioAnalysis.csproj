@@ -87,6 +87,7 @@
   <ItemGroup>
     <Compile Include="AudioAnalyzer.cs" />
     <Compile Include="AudioSplitter.cs" />
+    <Compile Include="AudioStreamBuffer.cs" />
     <Compile Include="NeuralAudioStreamer.cs" />
     <Compile Include="NeuralAudioTrainer.cs" />
     <Compile Include="NeuralAudioTest.cs" />
