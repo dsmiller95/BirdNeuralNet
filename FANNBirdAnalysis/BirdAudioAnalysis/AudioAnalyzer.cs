@@ -26,6 +26,8 @@ namespace BirdAudioAnalysis
 	 */
 	class AudioAnalyzer
 	{
+	    public const int DefaultSampleRate = 44100;
+
 		//The path to the audio file
 		private readonly string _audioFilePath;
 
@@ -39,7 +41,7 @@ namespace BirdAudioAnalysis
 
 		// Silence can be optionally trimmed out of the audio file
 		private readonly bool _trimSilence;
-		public AudioAnalyzer(string audioFile, int bufferSize, int sampleRate, bool trimSilence = false)
+		public AudioAnalyzer(string audioFile, int bufferSize, int sampleRate = DefaultSampleRate, bool trimSilence = false)
 		{
 			_audioFilePath = audioFile;
 			_bufferSize = bufferSize;
@@ -90,7 +92,7 @@ namespace BirdAudioAnalysis
 
 		public IEnumerable<IEnumerable<DataType[]>> GetTrainingFrequencies()
 		{
-			AudioSplitter audioSplitter = new AudioSplitter();
+			AudioSplitter audioSplitter = new AudioSplitter(1F);
 			var reader = new AudioFileReader(_audioFilePath);
 			var listBufferedStream = audioSplitter.SplitAudio(new AudioStreamReader(reader));//.RollingBuffer(_bufferSize, _bufferSize / 2);
 			return audioSplitter.SplitAudio(new AudioStreamReader(reader)).Select((sample) =>

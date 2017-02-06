@@ -105,15 +105,16 @@ namespace BirdAudioAnalysis
 
 			Console.WriteLine("Creating neural network with: \nNumber of Layers: {0} \nNumber of Inputs: {1} \n Number of Outputs: {2} \nNumber of Hidden Neurons: {3}", numLayers, numInput, numOutput, numNeuronsHidden);
 
-			NeuralNet net = new NeuralNet(NetworkType.LAYER, numLayers, numInput, numNeuronsHidden, numOutput);
+			var net = new NeuralNet(NetworkType.LAYER, numLayers, numInput, numNeuronsHidden, numOutput);
 			//NeuralNet net = new NeuralNet("birdneuralnet.net");
 
 			net.TrainingAlgorithm = TrainingAlgorithm.TRAIN_INCREMENTAL;
 
-			float desiredError = 0.1F;
+            float desiredError = 0.08F;
 			net.LearningMomentum = 0.7F;
+            net.TrainOnData(_training, 10, 5, 0.0001F);
 
-			Console.WriteLine("MSE error on train data: {0}", net.TestData(_training));
+            Console.WriteLine("MSE error on train data: {0}", net.TestData(_training));
 			Console.WriteLine("MSE error on test data:  {0}", net.TestData(_testing));
 			
 			net.TrainOnData(_training, 20000, 5, desiredError);

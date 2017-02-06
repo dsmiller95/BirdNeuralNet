@@ -28,6 +28,7 @@ namespace BirdAudioAnalysis
         private string[][] _files;
         private float _percentTest;
         private int _bufferSize;
+        
 
         private TrainingDataBuilder _training, _testing;
 
@@ -67,35 +68,14 @@ namespace BirdAudioAnalysis
                 {
                     Console.WriteLine("\nAnalyzing file {0}", fileNum);
 
-                    var analyzer = new AudioAnalyzer(_files[datasetNum][fileNum], _bufferSize, 44100);
-                    var frequencies = analyzer.GetFrequencies().ToArray();
-
-                    int sampleWindow = frequencies.Length;
-                    int dataSize = analyzer.GetDataSize();
-
-
-                    var aggregateFrequencies = new DataType[sampleWindow * dataSize];
-                    for (int j = 0; j < sampleWindow; j++)
+                    int length = AddFileToDataBuilderWithSplitter(
+                        //if our file counter is less than the number of data points we want in our testing data set, then add it to the testing data set
+                        (fileNum < _percentTest * _files[datasetNum].Length) ? _testing : _training,
+                        _files[datasetNum][fileNum],
+                        GetExpectedResultForIndex(datasetNum));
+                    if (length > maxLength)
                     {
-                        Array.Copy(frequencies[j], 0, aggregateFrequencies, j * dataSize, dataSize);
-                    }
-
-                    //find the max length of all of the samples
-                    if (aggregateFrequencies.Length > maxLength)
-                    {
-                        maxLength = aggregateFrequencies.Length;
-                    }
-
-                    //if our file counter is less than the number of data points we want in our training data set
-                    if (fileNum < _percentTest * _files[datasetNum].Length)
-                    {
-                        //collect testing data
-                        _testing.AddPair(aggregateFrequencies, GetExpectedResultForIndex(datasetNum));
-                    }
-                    else
-                    {
-                        //collect training data
-                        _training.AddPair(aggregateFrequencies, GetExpectedResultForIndex(datasetNum));
+                        maxLength = length;
                     }
                 }
             }
@@ -115,7 +95,65 @@ namespace BirdAudioAnalysis
             _training.PrintSize();
             _testing.PrintSize();
         }
-        
+
+        private int AddFileToDataBuilderWithSplitter(TrainingDataBuilder builder, string file, DataType[] expectedResults)
+        {
+            var maxLength = 0;
+            var analyzer = new AudioAnalyzer(file, _bufferSize);
+            var manyFrequencies = analyzer.GetTrainingFrequencies();
+            foreach (var freq in manyFrequencies)
+            {
+                var frequencies = freq.ToArray();//analyzer.GetFrequencies().ToArray();
+                Console.Out.Write(frequencies.Length + " ");
+
+                int sampleWindow = frequencies.Length;
+                int dataSize = analyzer.GetDataSize();
+
+                var aggregateFrequencies = new DataType[sampleWindow * dataSize];
+                for (int j = 0; j < sampleWindow; j++)
+                {
+                    Array.Copy(frequencies[j], 0, aggregateFrequencies, j * dataSize, dataSize);
+                }
+
+
+                //find the max length of all of the samples
+                if (aggregateFrequencies.Length > maxLength)
+                {
+                    maxLength = aggregateFrequencies.Length;
+                }
+                
+                builder.AddPair(aggregateFrequencies, expectedResults);
+            }
+            return maxLength;
+        }
+
+        private int AddFileToDataBuilder(TrainingDataBuilder builder, string file, DataType[] expectedResults)
+        {
+            var maxLength = 0;
+            var analyzer = new AudioAnalyzer(file, _bufferSize);
+            var frequencies = analyzer.GetFrequencies().ToArray();
+            Console.Out.Write(frequencies.Length + " ");
+
+            int sampleWindow = frequencies.Length;
+            int dataSize = analyzer.GetDataSize();
+
+            var aggregateFrequencies = new DataType[sampleWindow * dataSize];
+            for (int j = 0; j < sampleWindow; j++)
+            {
+                Array.Copy(frequencies[j], 0, aggregateFrequencies, j * dataSize, dataSize);
+            }
+
+
+            //find the max length of all of the samples
+            if (aggregateFrequencies.Length > maxLength)
+            {
+                maxLength = aggregateFrequencies.Length;
+            }
+
+            builder.AddPair(aggregateFrequencies, expectedResults);
+            return maxLength;
+        }
+
 
         /**
 		 * Get a set of what we should expect the neural network to output for a specific data classification.
