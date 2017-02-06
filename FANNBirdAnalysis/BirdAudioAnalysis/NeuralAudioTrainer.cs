@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -39,7 +40,11 @@ namespace BirdAudioAnalysis
 		//The target level or error on the final neural network
 		private readonly float _finalError;
 
-		public NeuralAudioTrainer(string[] rootFolders, int numFiles, int bufferSize = 4096, bool trimSilence = false, float desiredError = 0.01F)
+
+        private TrainingData _training;
+        private TrainingData _testing;
+
+        public NeuralAudioTrainer(string[] rootFolders, int numFiles, int bufferSize = 4096, bool trimSilence = false, float desiredError = 0.01F)
 		{
 			_rootFolders = rootFolders;
 			_numFiles = numFiles;
@@ -48,154 +53,40 @@ namespace BirdAudioAnalysis
 			_finalError = desiredError;
 		}
 
-		/// <summary>
-		/// Get an audio analyzer for one file
-		/// </summary>
-		/// <param name="datasetNum">the number (index) of the dataset to get the file from</param>
-		/// <param name="fileNum">the number or index of the file within the dataset to grab</param>
-		/// <param name="bufferSize">the size of the buffer to use in the audio analyzer</param>
-		/// <returns></returns>
-		private AudioAnalyzer GetAnalyzerForFile(int datasetNum, int fileNum, int bufferSize)
-		{
-			//Add one to file name so that they can start numbering at 1
-			fileNum += 1;
-			return new AudioAnalyzer(_rootFolders[datasetNum] + fileNum.ToString("D2") + ".mp3", bufferSize, 44100, _trimSilence);
-		}
+	    private void GetTrainingData(float percentTest)
+	    {
+            //First, get a full 2D list of all files to be processed
+            // This array does not have to be rectangular; that is, each data set
+            //  does not have to have the same number of samples
+	        var allFiles = new List<string[]>();
 
-		/**
-		 * Get a set of what we should expect the neural network to output for a specific data classification.
-		 * All array entries except the target classification will be -0.01; the target will be 1 to represent true
-		 * The outcomes that are expected to be false are set to -0.01 to create a higher motivation for the
-		 *  neural network trainer to cause those specific outputs to be low-valued. When they are set to 0,
-		 *  the trainer doesn't always seem to care if they entries are actually that close to 0
-		 */
-		private DataType[] GetExpectedResultForDataset(int dataset)
-		{
-			var result = new DataType[_rootFolders.Length + 1];
-			for(int i = 0; i < result.Length; i++)
-			{
-				result[i] = -0.01F;
-			}
-			result[dataset] = 1;
-			return result;
-		}
+	        foreach (var folder in _rootFolders)
+	        {
+	            var files = new string[_numFiles];
+	            for (int i = 0; i < _numFiles; i++)
+	            {
+	                files[i] = folder + (i + 1).ToString("D2") + ".mp3";
+	            }
+                allFiles.Add(files);
+	        }
 
-
-		private TrainingData _training;
-		private TrainingData _testing;
-
-		/// <summary>
-		/// Get the training data for 
-		/// </summary>
-		/// <param name="numToTrain">the number of data points to use as training data</param>
-		/// <param name="numToTest">the number of data points to use as testing data</param>
-		private void GetTrainingData(int numToTrain, int numToTest)
-		{
-			//Training data is seperated from testing data in order to prevent overfitting
-			// Overfitting is when the neural network fits all of our data we train it on, but in doing so
-			// misses the mark on other similar cases because of too much specific optimization
-			// So, we keep some of the data seperate to test the network on when we're done. if it trained well,
-			// then the network will perform on the test data just about as well as it does on the training data
-			// if it overfit the training data, then it will perform much worse on the testing data than on the training
-
-			// These arrays hold all of the training and testing data
-			// They are sized to how many data points they need to hold. The training data takes
-			//  <numToTrain> data points from each data set (Each data set is represented by one entry in _rootFolders)
-			//  And the same is done for the testing data
-			int trainingIndex = 0;
-			DataType[][] trainingData = new DataType[numToTrain * _rootFolders.Length + 1][];
-			DataType[][] trainingResultsExpected = new DataType[numToTrain * _rootFolders.Length + 1][];
-
-			trainingData[trainingData.Length - 1] = new DataType[] {0};
-			trainingResultsExpected[trainingResultsExpected.Length - 1] = GetExpectedResultForDataset(_rootFolders.Length);
-			
-
-			int testingIndex = 0;
-			DataType[][] testingData = new DataType[numToTest * _rootFolders.Length][];
-			DataType[][] testingResultsExpected = new DataType[numToTest * _rootFolders.Length][];
-
-			//maximum length out of all the samples; so that the rest can be padded with 0 to match the same size
-			//The samples need to be of the same length
-			int maxLength = 0;
-			for (int datasetNum = 0; datasetNum < _rootFolders.Length; datasetNum++)
-			{
-				for (int fileNum = 0; fileNum < _numFiles; fileNum++)
-				{
-					Console.WriteLine("\nAnalyzing file {0}", fileNum);
-
-					var analyzer = GetAnalyzerForFile(datasetNum, fileNum, _defaultBufferSize);
-					var frequencies = analyzer.GetFrequencies().ToArray();
-
-					int sampleWindow = frequencies.Length;
-					int dataSize = analyzer.GetDataSize();
-
-					//find the max length of any of the samples
-					if (sampleWindow * dataSize > maxLength)
-					{
-						maxLength = sampleWindow * dataSize;
-					}
-
-					//if our file counter is less than the number of data points we want in our training data set
-					if (fileNum < numToTrain)
-					{
-						//collect training data
-						trainingData[trainingIndex] = new DataType[sampleWindow * dataSize];
-						for (int j = 0; j < sampleWindow; j++)
-						{
-							Array.Copy(frequencies[j], 0, trainingData[trainingIndex], j * dataSize, dataSize);
-						}
-						trainingResultsExpected[trainingIndex] = GetExpectedResultForDataset(datasetNum);
-						trainingIndex++;
-					}
-					else
-					{
-						//collect testing data
-						testingData[testingIndex] = new DataType[sampleWindow * dataSize];
-						for (int j = 0; j < sampleWindow; j++)
-						{
-							Array.Copy(frequencies[j], 0, testingData[testingIndex], j * dataSize, dataSize);
-						}
-						testingResultsExpected[testingIndex] = GetExpectedResultForDataset(datasetNum);
-						testingIndex++;
-					}
-				}
-			}
-
-			//pad the 2D arrays with 0's to make them all at least maxLength in length
-			//ensures the arrays are rectangular and not jagged
-			//This is necessary because the neural network is currently configured to take in a fixed length of data
-			// and it will throw an error if it gets anything else. There is probably a better way to get samples of all
-			// the same size, but this was the easiest at the time.
-			PadAllWith0(trainingData, maxLength);
-			PadAllWith0(testingData, maxLength);
-
-
-			Console.WriteLine("Training data: ({0}x{1})", trainingData.Length, trainingData[0].Length);
-			Console.WriteLine("Expected data: ({0}x{1})", trainingResultsExpected.Length, trainingResultsExpected[0].Length);
-			Console.WriteLine("Testing data: ({0}x{1})", testingData.Length, testingData[0].Length);
-			Console.WriteLine("Expected data: ({0}x{1})", testingResultsExpected.Length, testingResultsExpected[0].Length);
-
-			
-			//create the actual training and testing data sets
-			_training = new TrainingData();
-			_training.SetTrainData(trainingData, trainingResultsExpected);
-
-			_testing = new TrainingData();
-			_testing.SetTrainData(testingData, testingResultsExpected);
-		}
+            var processor = new TrainingFileProcessor(allFiles.ToArray(), percentTest);
+	        _training = processor.GetTrainingData();
+	        _testing = processor.GetTestingData();
+	    }
 
 
 		/// <summary>
 		/// Get a neural network that has been trained on the previously specified datasets
 		/// </summary>
-		/// <param name="testCases">The number of data points that should be used as test cases rather than training cases</param>
+		/// <param name="percentTests">The percent of data points that should be used as test cases rather than training cases</param>
 		/// <returns></returns>
-		public NeuralNet TrainTheNetwork(int testCases)
+		public NeuralNet TrainTheNetwork(float percentTests)
 		{
 			// How many data points out of each data set to use for testing
-			int numToTest = testCases;
-			int numToTrain = _numFiles - numToTest;
-			GetTrainingData(numToTrain, numToTest);
+			//int numToTest = testCases;
+			//int numToTrain = _numFiles - numToTest;
+			GetTrainingData(percentTests);
 			
 			//Neural network setup
 			//the number of layers of neurons in the neural network

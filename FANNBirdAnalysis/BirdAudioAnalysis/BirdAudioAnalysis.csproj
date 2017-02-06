@@ -93,6 +93,8 @@
     <Compile Include="NeuralAudioTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AudioStreamReader.cs" />
+    <Compile Include="TrainingDataBuilder.cs" />
+    <Compile Include="TrainingFileProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

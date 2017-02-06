@@ -9,7 +9,7 @@ namespace BirdAudioAnalysis
 {
 	class AudioSplitter
 	{
-		private long chunkSize = 90000; //approximately 1/3rd of a 1.5s audio file
+		private const int ChunkSize = 90000; //approximately 1/3rd of a 1.5s audio file
 
 		/*
 		 * This method takes in an audio file and copies sections of the audio.
@@ -22,14 +22,14 @@ namespace BirdAudioAnalysis
 		public IEnumerable<IEnumerable<float>> SplitAudio(IEnumerable<float> originalBuffer)
 		{
 			var length = originalBuffer.Count();
-			var numGenFiles = (int)(length / chunkSize);
+			var numGenFiles = (length / ChunkSize);
 
-			for (int i = 0; i < numGenFiles; i++)
+            var random = new Random();
+            for (int i = 0; i < numGenFiles; i++)
 			{
-				Random random = new Random();
 				var randOffset = random.Next((int)length);
 
-				var tempBufferIEnumerable = originalBuffer.Skip(randOffset).Take((int)(chunkSize));
+				var tempBufferIEnumerable = originalBuffer.Skip(randOffset).Take((ChunkSize));
 				//var tempBuffer = tempBufferIEnumerable.ToArray();
 
 				yield return tempBufferIEnumerable;

@@ -58,7 +58,7 @@ namespace BirdAudioAnalysis
 
 			//get our trained neural network!
 			var audioTrainer = new NeuralAudioTrainer(fileSetRoots, 10, trimSilence: false, bufferSize: buffersize, desiredError: 0.02F);
-			var network = audioTrainer.TrainTheNetwork(3);
+			var network = audioTrainer.TrainTheNetwork(0.3F);
 
 			Console.WriteLine("Loading files to test against");
 
