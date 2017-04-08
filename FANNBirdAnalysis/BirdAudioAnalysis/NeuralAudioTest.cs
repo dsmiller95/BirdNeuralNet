@@ -54,7 +54,7 @@ namespace BirdAudioAnalysis
 				toneRoot + "WildTurkey\\"
 			};
 
-		    int buffersize = 1024;
+		    int buffersize = 512;
 
 			//get our trained neural network!
 			var audioTrainer = new NeuralAudioTrainer(fileSetRoots, 10, trimSilence: false, bufferSize: buffersize, desiredError: 0.02F);

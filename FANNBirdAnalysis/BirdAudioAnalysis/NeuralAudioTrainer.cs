@@ -70,7 +70,7 @@ namespace BirdAudioAnalysis
                 allFiles.Add(files);
 	        }
 
-            var processor = new TrainingFileProcessor(allFiles.ToArray(), percentTest);
+            var processor = new TrainingFileProcessor(allFiles.ToArray(), percentTest, bufferSize: _defaultBufferSize);
 	        _training = processor.GetTrainingData();
 	        _testing = processor.GetTestingData();
 	    }
@@ -110,7 +110,7 @@ namespace BirdAudioAnalysis
 
 			net.TrainingAlgorithm = TrainingAlgorithm.TRAIN_INCREMENTAL;
 
-            float desiredError = 0.08F;
+            float desiredError = 0.03F;
 			net.LearningMomentum = 0.7F;
             net.TrainOnData(_training, 10, 5, 0.0001F);
 
