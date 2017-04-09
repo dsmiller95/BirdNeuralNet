@@ -21,7 +21,7 @@ namespace BirdAudioAnalysis
         /// <returns>String pointing to the file which was saved</returns>
         public async Task<string> saveAsAudioFile(string fileName, IEnumerable<float[]> data)
         {
-            return null;
+            return "Aaaa";
         }
     }
 }

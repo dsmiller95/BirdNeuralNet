@@ -26,15 +26,12 @@ namespace BirdAudioAnalysis
 
 		// Sample rate is an artifact of how the audio file itself was recorded, referring to the number of samples/second
 		private readonly int _sampleRate;
-
-		// Silence can be optionally trimmed out of the audio file
-		private readonly bool _trimSilence;
-		public AudioAnalyzer(string audioFile, int bufferSize, int sampleRate = DefaultSampleRate, bool trimSilence = false)
+        
+		public AudioAnalyzer(string audioFile, int bufferSize, int sampleRate = DefaultSampleRate)
 		{
 			_audioFilePath = audioFile;
 			_bufferSize = bufferSize;
 			_sampleRate = sampleRate;
-			_trimSilence = trimSilence;
 		}
 
 		/**
@@ -78,7 +75,7 @@ namespace BirdAudioAnalysis
 			return FastFourierTransform(bufferedStream);
 		}
 
-		public IEnumerable<IEnumerable<float[]>> GetTrainingFrequencies()
+		/*public IEnumerable<IEnumerable<float[]>> GetTrainingFrequencies()
 		{
 			AudioSplitter audioSplitter = new AudioSplitter(1F);
 			var reader = new AudioFileReader(_audioFilePath);
@@ -88,7 +85,7 @@ namespace BirdAudioAnalysis
 				var bufferedStream = sample.RollingBuffer(_bufferSize, _bufferSize / 1);
 				return FastFourierTransform(bufferedStream);
 			});
-		}
+		}*/
 
 		public IEnumerable<float[]> FastFourierTransform(IEnumerable<float[]> bufferedStream)
 		{

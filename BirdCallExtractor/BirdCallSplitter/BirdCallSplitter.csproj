@@ -82,6 +82,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AudioAnalyzer.cs" />
+    <Compile Include="AudioFFTSplitter.cs" />
+    <Compile Include="AudioSaver.cs" />
     <Compile Include="IAudioDatabaseDownloader.cs" />
     <Compile Include="AudioSplitter.cs" />
     <Compile Include="AudioFileSplitAndTrim.cs" />

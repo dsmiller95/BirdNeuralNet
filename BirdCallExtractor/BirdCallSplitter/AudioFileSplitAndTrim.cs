@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace BirdAudioAnalysis
 {
@@ -14,7 +16,23 @@ namespace BirdAudioAnalysis
         /// <returns></returns>
         public async Task<string[]> ProcessTheseFiles(string[] filePaths, string targetFolder)
         {
-            return null;
+            int bufferSize = 512;
+
+            var i = 0;
+
+            var files = new List<string>();
+
+            foreach (var file in filePaths)
+            {
+                var analyzer = new AudioAnalyzer(file, bufferSize);
+                var fftStream = analyzer.GetFrequencies();
+                var newFile = await (new AudioSaver()).saveAsAudioFile("..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + i + ".mp3", fftStream);
+                Console.Out.WriteLine(newFile);
+                files.Add(newFile);
+            }
+            
+
+            return files.ToArray();
         }
     }
 }
