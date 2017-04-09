@@ -84,6 +84,7 @@
     <Compile Include="AudioAnalyzer.cs" />
     <Compile Include="IAudioDatabaseDownloader.cs" />
     <Compile Include="AudioSplitter.cs" />
+    <Compile Include="AudioFileSplitAndTrim.cs" />
     <Compile Include="IAudioFileSplitAndTrim.cs" />
     <Compile Include="StreamBuffer.cs" />
     <Compile Include="BirdCallExtractor.cs" />
