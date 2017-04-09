@@ -6,18 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-#if FANN_FIXED
-using FANNCSharp.Fixed;
-using DataType = System.Int32;
-#elif FANN_DOUBLE
-using FANNCSharp.Double;
-using DataType = System.Double;
-#else
-using FANNCSharp.Float;
-using DataType = System.Single;
-#endif
-
-
 namespace BirdAudioAnalysis
 {
 	/*
@@ -82,7 +70,7 @@ namespace BirdAudioAnalysis
 		 * Reads in the audio file specified by reader, taking in bufferSize number of samples in each chunk to be analyzed
 		 * Returns an enumerable composed of lists of the frequency bins
 		 */
-		public IEnumerable<DataType[]> GetFrequencies()
+		public IEnumerable<float[]> GetFrequencies()
 		{
 			
 			var reader = new AudioFileReader(_audioFilePath);
@@ -90,7 +78,7 @@ namespace BirdAudioAnalysis
 			return FastFourierTransform(bufferedStream);
 		}
 
-		public IEnumerable<IEnumerable<DataType[]>> GetTrainingFrequencies()
+		public IEnumerable<IEnumerable<float[]>> GetTrainingFrequencies()
 		{
 			AudioSplitter audioSplitter = new AudioSplitter(1F);
 			var reader = new AudioFileReader(_audioFilePath);
@@ -129,7 +117,7 @@ namespace BirdAudioAnalysis
 				return complex
 					//throw away half because the FFT is Symmetric when all inputs are real number
 					.Take(complex.Length / 2)
-					.Select((comp) => (DataType)Math.Abs(comp.Magnitude))
+					.Select((comp) => (float)Math.Abs(comp.Magnitude))
 					.ToArray();
 			});
 		}
