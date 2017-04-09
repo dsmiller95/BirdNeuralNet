@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NAudio.Wave;
 
 namespace BirdAudioAnalysis
 {
@@ -16,21 +17,32 @@ namespace BirdAudioAnalysis
         /// <returns></returns>
         public async Task<string[]> ProcessTheseFiles(string[] filePaths, string targetFolder)
         {
-            int bufferSize = 512;
-
-            var i = 0;
-
+            /**
+              * 1.Take in all file names
+              * 2.   Load in file
+              * 3.   Split file into multiple transforms
+              * 4.   Identify leading and trailing silences
+              * 5.   Save all non-silence files to new files
+              * 6.   Compile filenames and return up
+              * 7.Return all file names
+              **/
+            AudioAnalyzer[] sourceFiles = {};
+            const int bufferSize = 512;
             var files = new List<string>();
 
-            foreach (var file in filePaths)
+            for (var i = 0; i < filePaths.Length; i++)
+                sourceFiles[i] = new AudioAnalyzer(filePaths[i], bufferSize);
+
+            foreach (var file in sourceFiles)
             {
-                var analyzer = new AudioAnalyzer(file, bufferSize);
-                var fftStream = analyzer.GetFrequencies();
-                var newFile = await (new AudioSaver()).saveAsAudioFile("..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + i + ".mp3", fftStream);
-                Console.Out.WriteLine(newFile);
-                files.Add(newFile);
+                var fftStream = file.GetFrequencies();
+
+
+                //    var newFile = await (new AudioSaver()).saveAsAudioFile("..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + i + ".mp3", fftStream);
+                //    Console.Out.WriteLine(newFile);
+                //    files.Add(newFile);
             }
-            
+
 
             return files.ToArray();
         }
