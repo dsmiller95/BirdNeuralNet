@@ -33,17 +33,16 @@ namespace BirdAudioAnalysis
             for (var i = 0; i < filePaths.Length; i++)
                 sourceFiles[i] = new AudioAnalyzer(filePaths[i], bufferSize);
 
-            foreach (var file in sourceFiles)
-            {
-                var fftStream = file.GetFrequencies();
+            Parallel.ForEach(sourceFiles, async _ => 
+                            {
+                                var fftStream = _.GetFrequencies();
 
 
-                //    var newFile = await (new AudioSaver()).saveAsAudioFile("..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + i + ".mp3", fftStream);
-                //    Console.Out.WriteLine(newFile);
-                //    files.Add(newFile);
-            }
-
-
+                                var newFile = await (new AudioSaver()).saveAsAudioFile("..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + files.Count + ".mp3", fftStream);
+                                Console.Out.WriteLine(newFile);
+                                files.Add(newFile);
+                            });
+            
             return files.ToArray();
         }
     }
