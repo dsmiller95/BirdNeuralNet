@@ -20,7 +20,9 @@ namespace BirdAudioAnalysis
 		public AudioStreamReader(AudioFileReader reader)
 		{
 			_reader = reader;
-		}
+            //Console.Out.WriteLine(reader.WaveFormat.BitsPerSample);
+            //Console.Out.WriteLine(reader.WaveFormat.Channels);
+        }
 
 		public IEnumerator<float> GetEnumerator()
 		{

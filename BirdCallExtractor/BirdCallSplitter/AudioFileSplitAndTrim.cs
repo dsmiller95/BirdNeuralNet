@@ -6,6 +6,11 @@ namespace BirdAudioAnalysis
 {
     public class AudioFileSplitAndTrim : IAudioFileSplitAndTrim
     {
+
+
+        public const int BufferSize = 512;
+
+
         /// <summary>
         /// Takes in all the file paths given and does a batch splitting and trimming of each file, putting
         /// the resulting split files into the targetFolder
@@ -16,19 +21,21 @@ namespace BirdAudioAnalysis
         /// <returns></returns>
         public async Task<string[]> ProcessTheseFiles(string[] filePaths, string targetFolder)
         {
-            int bufferSize = 512;
-
             var i = 0;
 
             var files = new List<string>();
 
             foreach (var file in filePaths)
             {
-                var analyzer = new AudioAnalyzer(file, bufferSize);
+                var analyzer = new AudioAnalyzer(file, BufferSize);
                 var fftStream = analyzer.GetFrequencies();
-                var newFile = await (new AudioSaver()).saveAsAudioFile("..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + i + ".mp3", fftStream);
+                var newFile = await (new AudioSaver(BufferSize)).saveAsAudioFile(
+                    "..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + i + ".wav",
+                    fftStream,
+                    analyzer.GetWaveFormat());
                 Console.Out.WriteLine(newFile);
                 files.Add(newFile);
+                i += 1;
             }
             
 
