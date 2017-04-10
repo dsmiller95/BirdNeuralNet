@@ -13,7 +13,7 @@ namespace FANNUnitTests
     public class BirdAudioAnalysisTests
     {
 
-        private Boolean ArrayEq2D<T>(T[][] one, T[][] two)
+        public static Boolean ArrayEq2D<T>(T[][] one, T[][] two)
         {
             if (one.Length != two.Length)
                 return false;
@@ -33,7 +33,7 @@ namespace FANNUnitTests
         }
 
 
-        private void Print2D<T>(T[][] one, TextWriter output)
+        public static void Print2D<T>(T[][] one, TextWriter output)
         {
             for (var i = 0; i < one.Length; i++)
             {

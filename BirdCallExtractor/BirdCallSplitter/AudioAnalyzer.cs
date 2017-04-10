@@ -13,7 +13,7 @@ namespace BirdAudioAnalysis
 	 * of floating points representing the frequency amplitudes; as a result from a FFT
 	 */
 
-    class AudioAnalyzer
+    public class AudioAnalyzer
     {
         public const int DefaultSampleRate = 44100;
 
