@@ -26,15 +26,17 @@ namespace BirdAudioAnalysis
 
 		public IEnumerator<float> GetEnumerator()
 		{
+            
 			//buffer to hold all the sample data points
 			//float[] mainBuffer = new float[_chunksize];
 
 			//buffer to read in <offset> # of samples from the raw byte stream
 			//will be converted from bytes to floats
 			byte[] buffer = new byte[4];
-			while (_reader.Read(buffer, 0, buffer.Length) > 0)
+            float[] bufferF = new float[1];
+			while (_reader.Read(bufferF, 0, bufferF.Length) > 0)
 			{
-				float result = BitConverter.ToSingle(buffer, 0);
+			    float result = bufferF[0];//BitConverter.ToSingle(buffer, 0);
 				yield return result;
 			}
 			yield break;

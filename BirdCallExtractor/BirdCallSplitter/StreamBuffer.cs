@@ -32,21 +32,7 @@ namespace BirdAudioAnalysis
 			T[] mainBuffer = new T[chunksize];
 
 			var enumer = input.GetEnumerator();
-
-			//read in a full buffer of data to start and return it
-			/*for (var i = 0; i < chunksize; i++)
-			{
-				if (enumer.MoveNext())
-				{
-					mainBuffer[i] = enumer.Current;
-				}
-				else
-				{
-					goto exitLoop;
-				}
-			}
-			yield return mainBuffer;*/
-
+            
 			while (true)
 			{
 				//use a tmpBuffer to avoid overwriting the same data on the same pointer
@@ -73,5 +59,16 @@ namespace BirdAudioAnalysis
 
 			yield break;
 		}
-	}
+
+	    public static IEnumerable<T[]> ChunkBuffer<T>(this IEnumerable<T> input, int chunksize)
+	    {
+	        return input.Select((s, i) => new {Value = s, Index = i})
+	            .GroupBy(item => item.Index/chunksize, item => item.Value)
+	            .Select(chunk => chunk.ToArray());
+            
+
+	    }
+
+
+    }
 }

@@ -81,7 +81,12 @@ namespace BirdAudioAnalysis
         {
 
             var reader = new AudioFileReader(_audioFilePath);
-            var bufferedStream = new AudioStreamReader(reader).RollingBuffer(_bufferSize, _bufferSize/1);
+            //var mp3Reader = new Mp3FileReader(_audioFilePath);
+
+            
+            var stream = new AudioStreamReader(reader);
+
+            var bufferedStream = new AudioStreamReader(reader).ChunkBuffer(_bufferSize);//.RollingBuffer(_bufferSize, _bufferSize/1);
             return FastFourierTransform(bufferedStream, true, _bufferSize);
         }
 
@@ -120,7 +125,7 @@ namespace BirdAudioAnalysis
                         // The FFT is an algorith to perform a fourier transformation. this transformation effectively gives us
                         //  the amplitudes of sin and cosine waves at specific frequencies that can be used to compose the input sample when added together
                         FourierTransform.FFT(complex, forward ? FourierTransform.Direction.Forward : FourierTransform.Direction.Backward);
-
+                        
                         return complex
                             ////throw away half because the FFT is Symmetric when all inputs are real number
                             //.Take(complex.Length / 2)
