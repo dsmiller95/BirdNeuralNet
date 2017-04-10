@@ -90,18 +90,6 @@ namespace BirdAudioAnalysis
             return FastFourierTransform(bufferedStream, true, _bufferSize);
         }
 
-        /*public IEnumerable<IEnumerable<float[]>> GetTrainingFrequencies()
-		{
-			AudioSplitter audioSplitter = new AudioSplitter(1F);
-			var reader = new AudioFileReader(_audioFilePath);
-			var listBufferedStream = audioSplitter.SplitAudio(new AudioStreamReader(reader));//.RollingBuffer(_bufferSize, _bufferSize / 2);
-			return audioSplitter.SplitAudio(new AudioStreamReader(reader)).Select((sample) =>
-			{
-				var bufferedStream = sample.RollingBuffer(_bufferSize, _bufferSize / 1);
-				return FastFourierTransform(bufferedStream);
-			});
-		}*/
-
         public static IEnumerable<Complex[]> FastFourierTransform(IEnumerable<float[]> bufferedStream, bool forward, int bufferSize)
         {
             return (bufferedStream).Select((floats) =>

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Packaging;
+using System.Linq;
 using System.Threading.Tasks;
 using NAudio.Wave;
 
@@ -29,31 +31,40 @@ namespace BirdAudioAnalysis
               * 6.   Compile filenames and return up
               * 7.Return all file names
               **/
-            AudioAnalyzer[] sourceFiles = {};
-            var files = new List<string>();
-            
+            var factory = new TaskFactory();
 
-            var result = Parallel.ForEach(filePaths, async (file, state, index) => 
+           
+
+            var waiters = filePaths.Select((file, i) =>
                 {
-                    try
-                    {
-                        var analyzer = new AudioAnalyzer(file, BufferSize);
-                        var fftStream = analyzer.GetFrequencies();
-
-                        var newFile = await (new AudioSaver(BufferSize)).saveAsAudioFile(
-                            "..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + index + ".wav",
-                            fftStream,
-                            analyzer.GetWaveFormat());
-                        Console.Out.WriteLine(newFile);
-                        files.Add(newFile);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.Error.WriteLine(e);
-                    }
+                    return factory.StartNew(() => analyzeFile(file, i));
                 });
             
-            return files.ToArray();
+            var tmp = await Task.WhenAll(waiters);
+            var result = await Task.WhenAll(tmp);
+            
+            return result;
+        }
+
+        private async Task<string> analyzeFile(string file, int i)
+        {
+            try
+            {
+                var analyzer = new AudioAnalyzer(file, BufferSize);
+                var fftStream = analyzer.GetFrequencies();
+
+                var newFile = await (new AudioSaver(BufferSize)).SaveAsAudioFile(
+                    "..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + i + ".wav",
+                    fftStream,
+                    analyzer.GetWaveFormat());
+                Console.Out.WriteLine(newFile);
+                return newFile;
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e);
+                return e.Message;
+            }
         }
     }
 }

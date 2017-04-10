@@ -25,29 +25,37 @@ namespace BirdAudioAnalysis
         /// <param name="data">the FFT data</param>
         /// <param name="format">the WaveFormat of the incoming data</param>
         /// <returns>String pointing to the file which was saved</returns>
-        public async Task<string> saveAsAudioFile(string fileName, IEnumerable<Complex[]> data, WaveFormat format)
+        public async Task<string> SaveAsAudioFile(string fileName, IEnumerable<Complex[]> data, WaveFormat format)
         {
-            try
-            {
-                using (var writer = new WaveFileWriter(fileName, format))
-                {
-                    var fftChunks = AudioAnalyzer.FastFourierTransform(data, false, _bufferSize);
-                    var samplesComplex = fftChunks.Aggregate(new List<Complex>(), (accumulate, next) =>
-                                                         {
-                                                             accumulate.AddRange(next);
-                                                             return accumulate;
-                                                         });
-                    var samples = samplesComplex.Select((complex) => (float) complex.Magnitude).ToArray();
-                    
-                    writer.WriteSamples(samples, 0, samples.Length);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.Error.WriteLine(e);
-            }
+            var factory = new TaskFactory();
 
-            return "AaaaAaAAAAa";
+            var result = await factory.StartNew(() =>
+                                    {
+                                        try
+                                        {
+                                            using (var writer = new WaveFileWriter(fileName, format))
+                                            {
+                                                var fftChunks = AudioAnalyzer.FastFourierTransform(data, false, _bufferSize);
+                                                var samplesComplex = fftChunks.Aggregate(new List<Complex>(), (accumulate, next) =>
+                                                {
+                                                    accumulate.AddRange(next);
+                                                    return accumulate;
+                                                });
+                                                var samples = samplesComplex.Select((complex) => (float)complex.Re).ToArray();
+
+                                                writer.WriteSamples(samples, 0, samples.Length);
+                                            }
+                                            return fileName;
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            Console.Error.WriteLine(e);
+                                        }
+                                        return null;
+                                    });
+            
+
+            return result;
         }
     }
 }

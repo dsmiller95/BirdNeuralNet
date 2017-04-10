@@ -30,6 +30,7 @@ namespace BirdAudioAnalysis
                     }, splittingRoot + "\\Split");
                 resultFiles.GetAwaiter().OnCompleted(() =>
                     {
+                        Console.Out.WriteLine("complete");
                         foreach (var file in resultFiles.Result)
                         {
                             Console.Out.WriteLine(file);
