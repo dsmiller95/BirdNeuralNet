@@ -11,7 +11,7 @@ namespace BirdAudioAnalysis
     public class AudioSaver
     {
 
-        private int _bufferSize;
+        private readonly int _bufferSize;
 
         public AudioSaver(int bufferSize)
         {
@@ -30,29 +30,29 @@ namespace BirdAudioAnalysis
             var factory = new TaskFactory();
 
             var result = await factory.StartNew(() =>
-                                    {
-                                        try
-                                        {
-                                            using (var writer = new WaveFileWriter(fileName, format))
-                                            {
-                                                var fftChunks = AudioAnalyzer.FastFourierTransform(data, false, _bufferSize);
-                                                var samplesComplex = fftChunks.Aggregate(new List<Complex>(), (accumulate, next) =>
-                                                {
-                                                    accumulate.AddRange(next);
-                                                    return accumulate;
-                                                });
-                                                var samples = samplesComplex.Select((complex) => (float)complex.Re).ToArray();
+                {
+                    try
+                    {
+                        using (var writer = new WaveFileWriter(fileName, format))
+                        {
+                            var fftChunks = AudioAnalyzer.FastFourierTransform(data, false, _bufferSize);
+                            var samplesComplex = fftChunks.Aggregate(new List<Complex>(), (accumulate, next) =>
+                            {
+                                accumulate.AddRange(next);
+                                return accumulate;
+                            });
+                            var samples = samplesComplex.Select((complex) => (float)complex.Re).ToArray();
 
-                                                writer.WriteSamples(samples, 0, samples.Length);
-                                            }
-                                            return fileName;
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            Console.Error.WriteLine(e);
-                                        }
-                                        return null;
-                                    });
+                            writer.WriteSamples(samples, 0, samples.Length);
+                        }
+                        return fileName;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.Error.WriteLine(e);
+                    }
+                    return null;
+                });
             
 
             return result;

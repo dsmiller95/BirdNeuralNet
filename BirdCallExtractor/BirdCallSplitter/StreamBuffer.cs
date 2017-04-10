@@ -65,8 +65,6 @@ namespace BirdAudioAnalysis
 	        return input.Select((s, i) => new {Value = s, Index = i})
 	            .GroupBy(item => item.Index/chunksize, item => item.Value)
 	            .Select(chunk => chunk.ToArray());
-            
-
 	    }
 
 
