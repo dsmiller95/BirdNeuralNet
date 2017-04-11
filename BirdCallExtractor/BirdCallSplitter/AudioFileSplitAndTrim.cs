@@ -37,11 +37,10 @@ namespace BirdAudioAnalysis
 
             var waiters = filePaths.Select((file, i) =>
                 {
-                    return factory.StartNew(() => analyzeFile(file, i));
+                    return analyzeFile(file, i);
                 });
             
-            var tmp = await Task.WhenAll(waiters);
-            var result2D = await Task.WhenAll(tmp);
+            var result2D = await Task.WhenAll(waiters);
 
             var result = result2D.Aggregate(new List<string>(), (aggregate, value) =>
                             {
