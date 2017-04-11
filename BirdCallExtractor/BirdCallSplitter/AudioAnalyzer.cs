@@ -86,7 +86,7 @@ namespace BirdAudioAnalysis
 
         public static IEnumerable<Complex[]> FastFourierTransform(IEnumerable<float[]> bufferedStream, bool forward, int bufferSize)
         {
-            return FastFourierTransform((bufferedStream).Select((floats) =>
+            return FastFourierTransformInternal((bufferedStream).Select((floats) =>
                         {
                             //Cast all of the floating point numbers to Complex numbers in preperation for the FFT
                             //We need to cast to complex numbers here because this particular library forces us to
@@ -102,6 +102,17 @@ namespace BirdAudioAnalysis
         }
 
         public static IEnumerable<Complex[]> FastFourierTransform(IEnumerable<Complex[]> bufferedStream, bool forward, int bufferSize)
+        {
+
+            return FastFourierTransformInternal((bufferedStream).Select((complex) =>
+                                                                        {
+                                                                            var copier = new Complex[complex.Length];
+                                                                            complex.CopyTo(copier, 0);
+                                                                            return copier;
+                                                                        }), forward, bufferSize);
+        }
+
+        private static IEnumerable<Complex[]> FastFourierTransformInternal(IEnumerable<Complex[]> bufferedStream, bool forward, int bufferSize)
         {
             return (bufferedStream).Select((complex) =>
                     {

@@ -41,29 +41,47 @@ namespace BirdAudioAnalysis
                 });
             
             var tmp = await Task.WhenAll(waiters);
-            var result = await Task.WhenAll(tmp);
-            
+            var result2D = await Task.WhenAll(tmp);
+
+            var result = result2D.Aggregate(new List<string>(), (aggregate, value) =>
+                            {
+                                aggregate.AddRange(value);
+                                return aggregate;
+                            }).ToArray();
+
             return result;
         }
 
-        private async Task<string> analyzeFile(string file, int i)
+        private async Task<string[]> analyzeFile(string file, int i)
         {
             try
             {
                 var analyzer = new AudioAnalyzer(file, BufferSize);
                 var fftStream = analyzer.GetFrequencies();
+                var splitter = new AudioSplitter();
+                var splitAudio = splitter.SplitAudio(fftStream);
 
-                var newFile = await (new AudioSaver(BufferSize)).SaveAsAudioFile(
+                var toWait = splitAudio.Select((splitPiece, index) =>
+                            {
+                                return (new AudioSaver(BufferSize)).SaveAsAudioFile(
+                                    "..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + i.ToString("D2") + "-" + index.ToString("D2") + ".wav",
+                                    splitPiece,
+                                    analyzer.GetWaveFormat());
+                            });
+                var savedFiles = await Task.WhenAll(toWait);
+                return savedFiles;
+
+                /*var newFile = await (new AudioSaver(BufferSize)).SaveAsAudioFile(
                     "..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + i + ".wav",
                     fftStream,
                     analyzer.GetWaveFormat());
                 Console.Out.WriteLine(newFile);
-                return newFile;
+                return new string[] {newFile};*/
             }
             catch (Exception e)
             {
                 Console.Error.WriteLine(e);
-                return e.Message;
+                return new string[] {e.Message};
             }
         }
     }
