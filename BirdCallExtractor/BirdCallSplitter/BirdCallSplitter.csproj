@@ -93,10 +93,11 @@
     <Compile Include="AudioFFTSplitter.cs" />
     <Compile Include="AudioSaver.cs" />
     <Compile Include="AudioDatabaseDownloader.cs" />
+    <Compile Include="AverageIntensityAudioSplitter.cs" />
     <Compile Include="IAudioDatabaseDownloader.cs" />
-    <Compile Include="AudioSplitter.cs" />
     <Compile Include="AudioFileSplitAndTrim.cs" />
     <Compile Include="IAudioFileSplitAndTrim.cs" />
+    <Compile Include="IAudioSplitter.cs" />
     <Compile Include="StreamBuffer.cs" />
     <Compile Include="BirdCallExtractor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
