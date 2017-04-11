@@ -32,7 +32,7 @@ namespace BirdAudioAnalysis
 			string pathString = "..\\..\\..\\DataSets\\" + scientificName + "\\";
 			Directory.CreateDirectory(pathString);
 
-			DataSet dataSet = ExecuteBirdCallQuery(scientificName);
+			DataSet dataSet = await ExecuteBirdCallQuery(scientificName);
 			DataTable dataTable = dataSet.Tables[0];
 
 			string[] audioPaths = new string[dataTable.Rows.Count];
@@ -78,7 +78,7 @@ namespace BirdAudioAnalysis
 			}
 		}
 
-		public DataSet ExecuteBirdCallQuery(string scientificName)
+		public async Task<DataSet> ExecuteBirdCallQuery(string scientificName)
 		{
 			string query = "select audio from audio a, information b where a.birdId = b.id && b.scientificName = \"" + scientificName + "\";";
 			if (dbConnection.State == ConnectionState.Open)
