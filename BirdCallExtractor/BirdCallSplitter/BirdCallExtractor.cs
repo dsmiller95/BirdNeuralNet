@@ -33,12 +33,13 @@ namespace BirdAudioAnalysis
                         splittingRoot + "05.mp3"
                     }, splittingRoot + "\\Split");
                 resultFiles.GetAwaiter().OnCompleted(() =>
-                                                     {
-                                                         foreach (var file in resultFiles.Result)
-                                                         {
-                                                             Console.Out.WriteLine(file);
-                                                         }
-                                                     });
+                    {
+                        Console.Out.WriteLine("complete");
+                        foreach (var file in resultFiles.Result)
+                        {
+                            Console.Out.WriteLine(file);
+                        }
+                    });
 		    }
 
             Console.WriteLine("Press the any key to exit");

@@ -10,10 +10,9 @@ using BirdAudioAnalysis;
 namespace FANNUnitTests
 {
     [TestClass]
-    class LinqBufferTest
+    public class LinqBufferUnitTest
     {
-
-        private static IEnumerable<Int32> testData = new[] {1, 2, 3, 4, 5};
+        private static IEnumerable<Int32> testData = new[] { 1, 2, 3, 4, 5 };
         [TestMethod]
         public void TestReturn()
         {
@@ -26,7 +25,19 @@ namespace FANNUnitTests
                                  };
             var result = testData.RollingBuffer(2, 1);
 
-            result.SequenceEqual(expectedResult);
+            Assert.IsTrue(BirdAudioAnalysisTests.ArrayEq2D(expectedResult, result.ToArray()));
+        }
+        [TestMethod]
+        public void TestReturn2()
+        {
+            var expectedResult = new int[][]
+                                 {
+                                     new[] {1, 2},
+                                     new[] {3, 4}
+                                 };
+            var result = testData.RollingBuffer(2, 2);
+
+            Assert.IsTrue(BirdAudioAnalysisTests.ArrayEq2D(expectedResult, result.ToArray()));
         }
     }
 }
