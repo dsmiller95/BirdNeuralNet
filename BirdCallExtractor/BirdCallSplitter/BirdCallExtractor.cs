@@ -1,6 +1,7 @@
 ﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 
@@ -12,6 +13,9 @@ namespace BirdAudioAnalysis
 	{
 		private static void Main(string[] args)
 		{
+			//AudioDatabaseDownloader test = new AudioDatabaseDownloader("G1tR3kt123");
+			//test.Close();
+
 			Console.WriteLine("Press S to split up the audio");
 
 
