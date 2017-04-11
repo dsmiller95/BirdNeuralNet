@@ -8,9 +8,9 @@ using AForge.Math;
 
 namespace BirdAudioAnalysis
 {
-	class AudioSplitter
+	class AverageIntensityAudioSplitter : IAudioSplitter
 	{
-        public AudioSplitter()
+        public AverageIntensityAudioSplitter()
         {
             
         }

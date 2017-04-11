@@ -57,7 +57,8 @@ namespace BirdAudioAnalysis
             {
                 var analyzer = new AudioAnalyzer(file, BufferSize);
                 var fftStream = analyzer.GetFrequencies();
-                var splitter = new AudioSplitter();
+
+                IAudioSplitter splitter = new AverageIntensityAudioSplitter();
                 var splitAudio = splitter.SplitAudio(fftStream);
 
                 var toWait = splitAudio.Select((splitPiece, index) =>
