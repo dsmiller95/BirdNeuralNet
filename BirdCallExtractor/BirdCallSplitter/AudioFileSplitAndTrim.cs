@@ -35,10 +35,7 @@ namespace BirdAudioAnalysis
 
            
 
-            var waiters = filePaths.Select((file, i) =>
-                {
-                    return analyzeFile(file, i);
-                });
+            var waiters = filePaths.Select(AnalyzeFile);
             
             var result2D = await Task.WhenAll(waiters);
 
@@ -51,7 +48,7 @@ namespace BirdAudioAnalysis
             return result;
         }
 
-        private async Task<string[]> analyzeFile(string file, int i)
+        private static async Task<string[]> AnalyzeFile(string file, int i)
         {
             try
             {
@@ -61,13 +58,10 @@ namespace BirdAudioAnalysis
                 IAudioSplitter splitter = new AverageIntensityAudioSplitter();
                 var splitAudio = splitter.SplitAudio(fftStream);
 
-                var toWait = splitAudio.Select((splitPiece, index) =>
-                            {
-                                return (new AudioSaver(BufferSize)).SaveAsAudioFile(
-                                    "..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + i.ToString("D2") + "-" + index.ToString("D2") + ".wav",
-                                    splitPiece,
-                                    analyzer.GetWaveFormat());
-                            });
+                var toWait = splitAudio.Select((splitPiece, index) => new AudioSaver(BufferSize).SaveAsAudioFile(
+                    "..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + i.ToString("D2") + "-" + index.ToString("D2") + ".wav",
+                    splitPiece,
+                    analyzer.GetWaveFormat()));
                 var savedFiles = await Task.WhenAll(toWait);
                 return savedFiles;
 
@@ -81,7 +75,7 @@ namespace BirdAudioAnalysis
             catch (Exception e)
             {
                 Console.Error.WriteLine(e);
-                return new string[] {e.Message};
+                return new[] {e.Message};
             }
         }
     }

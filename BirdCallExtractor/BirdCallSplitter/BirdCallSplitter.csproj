@@ -93,7 +93,9 @@
     <Compile Include="AudioFFTSplitter.cs" />
     <Compile Include="AudioSaver.cs" />
     <Compile Include="AudioDatabaseDownloader.cs" />
+    <Compile Include="AudioSplitter.cs" />
     <Compile Include="AverageIntensityAudioSplitter.cs" />
+    <Compile Include="BreakOnValleyAudioSplitter.cs" />
     <Compile Include="IAudioDatabaseDownloader.cs" />
     <Compile Include="AudioFileSplitAndTrim.cs" />
     <Compile Include="IAudioFileSplitAndTrim.cs" />
