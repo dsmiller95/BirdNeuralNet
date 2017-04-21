@@ -7,9 +7,25 @@ namespace BirdAudioAnalysis
 {
     internal class AverageIntensityAudioSplitter : AudioSplitter
     {
+
         private int _currentNonPassing;
         private int _sizeOfChunk;
         private double _waterline;
+
+        public AverageIntensityAudioSplitter(IEnumerable<Complex[]> buffer) : base(buffer)
+        {
+
+            var complexses = origBuffer;
+
+            var averages = complexses.Select(sample => sample.Average(complex => complex.Magnitude));
+
+            var totalAverageMagnitute = averages.Average();
+
+            var variance = averages.Sum(avgMag => Math.Pow(avgMag - totalAverageMagnitute, 2)) / (averages.Count() - 1);
+            var standardDeviation = Math.Sqrt(variance);
+
+            _waterline = totalAverageMagnitute;// - standardDeviation;
+        }
 
         /// <summary>
         /// Denotes if we should slice here or not
@@ -17,7 +33,7 @@ namespace BirdAudioAnalysis
         /// <param name="sample">Sample to check</param>
         /// <param name="originalBuffer">Benchmark to use to check if sample is part of signal</param>
         /// <returns>boolean that sample is signal</returns>
-        public override bool CutHere(Complex[] sample, List<Complex[]> originalBuffer)
+        public override bool CutHere(Complex[] sample)
         {
             _sizeOfChunk++;
             //If chunk too small, don't cut yet, no matter what
@@ -47,27 +63,7 @@ namespace BirdAudioAnalysis
         /// <param name="sample">Sample to check</param>
         /// <param name="originalBuffer">Benchmark to use to check if sample is part of signal</param>
         /// <returns>boolean that sample is signal</returns>
-        public override bool IsSignalSample(Complex[] sample, List<Complex[]> originalBuffer)
-            => sample.Average(value => value.Magnitude) > GetAvgSampleIntensity(originalBuffer);
-
-        /// <summary>
-        /// Finds a benchmark for us to compare values to
-        /// </summary>
-        /// <param name="file">Input audio file</param>
-        /// <returns>Average of sample's Averages, minus 0.5 std dev</returns>
-        public double GetAvgSampleIntensity(IEnumerable<Complex[]> file)
-        {
-            if (_waterline.Equals(0))
-            {
-                var complexses = file as IList<Complex[]> ?? file.ToList();
-                var average = complexses.Average(sample => sample.Average(complex => complex.Magnitude));
-                var sum = complexses.Sum(d => Math.Pow(d.Average(complex => complex.Magnitude) - average, 2)); //Perform the Sum of (value-avg)_2_2      
-
-                _waterline = average - Math.Sqrt(sum / (complexses.Count - 1))/2;
-            }
-
-            return _waterline;
-            //return file.Average(sample => sample.Average(complex => complex.Magnitude));
-        }
+        public override bool IsSignalSample(Complex[] sample)
+            => sample.Average(value => value.Magnitude) > _waterline || true;
     }
 }

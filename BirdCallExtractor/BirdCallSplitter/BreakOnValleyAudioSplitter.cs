@@ -9,11 +9,19 @@ namespace BirdAudioAnalysis
 {
     class BreakOnValleyAudioSplitter : AudioSplitter
     {
-        private double _lowest = double.MaxValue;
+        private double _lowest;
+        private double _avg;
+
         private int _aboveMinStreak;
         private int _sizeOfChunk;
 
-        public override bool CutHere(Complex[] sample, List<Complex[]> originalBuffer)
+        public BreakOnValleyAudioSplitter(IEnumerable<Complex[]> buffer) : base(buffer)
+        {
+            _lowest = double.MaxValue;
+            _avg = GetAvgSampleIntensity(buffer);
+        }
+
+        public override bool CutHere(Complex[] sample)
         {
             _sizeOfChunk++;
             //If chunk too small, don't cut yet, no matter what
@@ -47,7 +55,8 @@ namespace BirdAudioAnalysis
         /// <param name="sample">Sample to check</param>
         /// <param name="originalBuffer">Benchmark to use to check if sample is part of signal</param>
         /// <returns>boolean that sample is signal</returns>
-        public override bool IsSignalSample(Complex[] sample, List<Complex[]> originalBuffer) => sample.Average(value => value.Magnitude) > GetAvgSampleIntensity(originalBuffer);
+        public override bool IsSignalSample(Complex[] sample) =>
+            sample.Average(value => value.Magnitude) > _avg;
 
         /// <summary>
         /// Take a buffer of audio FFT data, and filter it so that all that's left is bird calls

@@ -54,9 +54,9 @@ namespace BirdAudioAnalysis
             {
                 var analyzer = new AudioAnalyzer(file, BufferSize);
                 var fftStream = analyzer.GetFrequencies();
-
-                IAudioSplitter splitter = new AverageIntensityAudioSplitter();
-                var splitAudio = splitter.SplitAudio(fftStream);
+                //Console.Out.WriteLine("pre-count: " + fftStream.Count());
+                IAudioSplitter splitter = new AverageIntensityAudioSplitter(fftStream);
+                var splitAudio = splitter.SplitAudio();
 
                 var toWait = splitAudio.Select((splitPiece, index) => new AudioSaver(BufferSize).SaveAsAudioFile(
                     "..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + i.ToString("D2") + "-" + index.ToString("D2") + ".wav",
