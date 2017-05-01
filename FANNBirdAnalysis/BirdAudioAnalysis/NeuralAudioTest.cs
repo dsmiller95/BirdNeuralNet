@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using System.IO;
+
 
 //This statement is used to allow for compilation of the code using a 
 // integer, double, or float neural network. that means that the FANN network
@@ -45,14 +47,24 @@ namespace BirdAudioAnalysis
 			#endregion
 
 			//Set up arrays to hold the paths to the folders which contain all the training data sets
-			string toneRoot = "..\\..\\..\\DataSets\\Audio\\Birds\\";
-			//This is the array used to point to each sample set
-			string[] fileSetRoots =
-			{
-				toneRoot + "BlackCappedChickadee\\",
-				toneRoot + "AmericanCrow\\",
-				toneRoot + "WildTurkey\\"
-			};
+			string toneRoot = "..\\..\\..\\DataSets\\Audio\\BetterBirds\\";
+            //This is the array used to point to each sample set
+
+            string[] fileSetRoots = Directory.GetDirectories(toneRoot);
+            
+
+            
+			/*string[] fileSetRoots =
+            {
+                toneRoot + "BlackCappedChickadee",
+                toneRoot + "AmericanCrow",
+                toneRoot + "WildTurkey"
+            };*/
+
+            foreach(var file in fileSetRoots)
+            {
+                Console.Out.WriteLine(file);
+            }
 
 		    int buffersize = 512;
 
@@ -65,7 +77,12 @@ namespace BirdAudioAnalysis
 			toneRoot = "..\\..\\..\\DataSets\\Audio\\Birds\\";
 			string[] streamingRoots = { toneRoot + "chickadee17.mp3", toneRoot + "crow13.mp3", toneRoot + "wildturkey12.mp3" };
 
-		    string printableResults = String.Format("{0, 16} {1, 10}\t {2, 5}\t {3, 5}\t {4, 5}\n", "File", "Chickadee", "Crow", "Turkey", "None");
+            string printableResults = String.Format("{0, 16}", "File");
+            foreach (var fileRoot in fileSetRoots)
+            {
+                printableResults += String.Format("  {0, 10}", Truncate(Path.GetFileNameWithoutExtension(fileRoot), 10));
+            }
+            printableResults += String.Format("  {0, 10}\n", "None");
 
 			for (var i = 0; i < streamingRoots.Length; i++)
 			{
@@ -73,8 +90,8 @@ namespace BirdAudioAnalysis
 				var avgResult = new float[4]; 
 				Console.WriteLine("Testing against Stream {0}", i);
 
-				var filename = streamingRoots[i].Split('\\');
-				Console.WriteLine("File tested: {0}", filename[6]);
+				var filename = Path.GetFileName(streamingRoots[i]);
+				Console.WriteLine("File tested: {0}", filename);
 
 				//stream the audio data through the neural network, and print out the first 50 results
 
@@ -92,8 +109,14 @@ namespace BirdAudioAnalysis
 				Console.WriteLine("Length: " + len);
                 //Console.WriteLine("The guess is for audio file {0} is: {1} chickadee, {2} crow, none: {3}", filename[6], (avgResult[0] / len), (avgResult[1] / len), (avgResult[2] / len));
 
-                printableResults += string.Format("{0, 16} {1, 10:0.000}\t {2, 5:0.000}\t {3, 5:0.000}\t{4, 5:0.000}\n", filename[6], (avgResult[0]/len), (avgResult[1]/len), (avgResult[2]/len), (avgResult[3]/len));
-				Console.WriteLine("The guess is for audio file {0} is: {1} chickadee, {2} crow, {3} wild turkey, {4} none", filename[6], (avgResult[0] / len), (avgResult[1] / len), (avgResult[2] / len), (avgResult[3] / len));
+                printableResults += string.Format("{0, 16}", Truncate(filename, 16));
+                foreach (var result in avgResult)
+                {
+                    printableResults += string.Format("  {0, 10:0.000}", (result / len));
+                }
+                printableResults += "\n";
+
+                //Console.WriteLine("The guess is for audio file {0} is: {1} chickadee, {2} crow, {3} wild turkey, {4} none", filename, (avgResult[0] / len), (avgResult[1] / len), (avgResult[2] / len), (avgResult[3] / len));
 			}
 		    Console.WriteLine(printableResults);
 			Console.WriteLine("Press the any key to exit");
@@ -106,6 +129,17 @@ namespace BirdAudioAnalysis
             }
 			//free up the used memory
 			network.Dispose();
-		}
-	}
+        }
+
+
+        private static string Truncate(string input, int len)
+        {
+            if (len < input.Length)
+            {
+                return input.Substring(0, len);
+            }
+            return input;
+        }
+    }
+
 }

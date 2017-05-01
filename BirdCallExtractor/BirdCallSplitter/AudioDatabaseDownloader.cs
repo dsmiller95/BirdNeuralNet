@@ -31,7 +31,7 @@ namespace BirdAudioAnalysis
 
         public string GetPathForBird(string scientificName)
         {
-            return "..\\..\\..\\DataSets\\" + scientificName + "\\";
+            return "..\\..\\..\\DataSets\\" + scientificName + "\\source\\";
         }
 
 		public async Task<string[]> DownloadAudioForBird(string scientificName)

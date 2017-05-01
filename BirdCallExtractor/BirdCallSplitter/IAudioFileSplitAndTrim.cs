@@ -12,7 +12,7 @@ namespace BirdAudioAnalysis
         /// <param name="filePaths"></param>
         /// <param name="targetFolder"></param>
         /// <returns></returns>
-        Task<string[]> ProcessTheseFiles(string[] filePaths, string targetFolder);
+        Task<string[]> ProcessTheseFiles(string[] filePaths);
 
     }
 }

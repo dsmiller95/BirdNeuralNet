@@ -11,6 +11,13 @@ namespace BirdAudioAnalysis
     {
         public const int BufferSize = 512;
 
+        private string _targetFolder;
+
+        public AudioFileSplitAndTrim(string targetFolder)
+        {
+            _targetFolder = targetFolder;
+        }
+
 
         /// <summary>
         /// Takes in all the file paths given and does a batch splitting and trimming of each file, putting
@@ -20,7 +27,7 @@ namespace BirdAudioAnalysis
         /// <param name="filePaths"></param>
         /// <param name="targetFolder"></param>
         /// <returns></returns>
-        public async Task<string[]> ProcessTheseFiles(string[] filePaths, string targetFolder)
+        public async Task<string[]> ProcessTheseFiles(string[] filePaths)
         {
             /**
               * 1.Take in all file names
@@ -48,7 +55,7 @@ namespace BirdAudioAnalysis
             return result;
         }
 
-        private static async Task<string[]> AnalyzeFile(string file, int i)
+        private async Task<string[]> AnalyzeFile(string file, int i)
         {
             try
             {
@@ -59,7 +66,7 @@ namespace BirdAudioAnalysis
                 var splitAudio = splitter.SplitAudio();
 
                 var toWait = splitAudio.Select((splitPiece, index) => new AudioSaver(BufferSize).SaveAsAudioFile(
-                    "..\\..\\..\\DataSets\\AudioToSplit\\Split\\" + i.ToString("D2") + "-" + index.ToString("D2") + ".wav",
+                    _targetFolder + i.ToString("D2") + "-" + index.ToString("D2") + ".wav",
                     splitPiece,
                     analyzer.GetWaveFormat()));
                 var savedFiles = await Task.WhenAll(toWait);

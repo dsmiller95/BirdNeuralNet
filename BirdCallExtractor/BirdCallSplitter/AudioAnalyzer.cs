@@ -77,8 +77,14 @@ namespace BirdAudioAnalysis
 		 */
         public IEnumerable<Complex[]> GetFrequencies()
         {
-
-            var reader = new AudioFileReader(_audioFilePath);
+            AudioFileReader reader;
+            try
+            {
+                reader = new AudioFileReader(_audioFilePath);
+            }catch(Exception e)
+            {
+                throw new Exception("File path: " + _audioFilePath, e);
+            }
             
             var bufferedStream = new AudioStreamReader(reader).ChunkBuffer(_bufferSize);//.RollingBuffer(_bufferSize, _bufferSize/1);
             return FastFourierTransform(bufferedStream, true, _bufferSize);

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 
 using FANNCSharp;
+using System.IO;
 
 #if FANN_FIXED
 using FANNCSharp.Fixed;
@@ -62,12 +63,13 @@ namespace BirdAudioAnalysis
 
 	        foreach (var folder in _rootFolders)
 	        {
-	            var files = new string[_numFiles];
+	            /*var files = new string[_numFiles];
 	            for (int i = 0; i < _numFiles; i++)
 	            {
-	                files[i] = folder + (i + 1).ToString("D2") + ".mp3";
+	                files[i] = folder + "\\" + (i + 1).ToString("D2") + ".mp3";
 	            }
-                allFiles.Add(files);
+                allFiles.Add(files);*/
+                allFiles.Add(Directory.GetFiles(folder));
 	        }
 
             var processor = new TrainingFileProcessor(allFiles.ToArray(), percentTest, bufferSize: _defaultBufferSize);

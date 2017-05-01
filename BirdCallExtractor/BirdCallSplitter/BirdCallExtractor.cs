@@ -13,16 +13,7 @@ namespace BirdAudioAnalysis
 	class BirdCallExtractor
 	{
 
-        private static string[] testBirdNames = {   "Agelaioides badius",
-                                                    "Alethe diademata",
-                                                    "Amazilia chionogaster",
-                                                    "Anthus hellmayri",
-                                                    "Apalis cinerea",
-                                                    "Apalis ruwenzorii",
-                                                    "Apaloderma aequatoriale",
-                                                    "Apaloderma vittatum",
-                                                    "Asthenes sclateri",
-                                                    "Baeopogon indicator"};
+        private static string[] testBirdNames = {   "AmericanCrow",};
 
         private static AudioDatabaseDownloader downloader;
 
@@ -40,14 +31,14 @@ namespace BirdAudioAnalysis
             switch (key.KeyChar.ToString().ToLower())
             {
                 case "s":
-                    var splitter = new AudioFileSplitAndTrim();
+                    var splitter = new AudioFileSplitAndTrim(splittingRoot + "Split\\");
                     var resultFiles = splitter.ProcessTheseFiles(new string[] {
                         splittingRoot + "01.mp3",
                         splittingRoot + "02.mp3",
                         splittingRoot + "03.mp3",
                         splittingRoot + "04.mp3",
                         splittingRoot + "05.mp3"
-                    }, splittingRoot + "\\Split");
+                    });
                     resultFiles.GetAwaiter().OnCompleted(() =>
                     {
                         Console.Out.WriteLine("complete");
@@ -94,13 +85,14 @@ namespace BirdAudioAnalysis
                 string[] downloadedFiles;
                 //using (var localDownloader = new AudioDatabaseDownloader("G1tR3kt123"))
                 //{
-                    downloadedFiles = await downloader.DownloadAudioForBird(scientificName);
+                //downloadedFiles = await downloader.DownloadAudioForBird(scientificName);
 
+                downloadedFiles = Directory.GetFiles(downloader.GetPathForBird(scientificName));
 
-                    var splitter = new AudioFileSplitAndTrim();
-                    var saveDirectory = downloader.GetPathForBird(scientificName) + "Split\\";
-                    Directory.CreateDirectory(saveDirectory);
-                    resultFiles = await splitter.ProcessTheseFiles(downloadedFiles, saveDirectory);
+                var saveDirectory = downloader.GetPathForBird(scientificName) + "..\\";
+                var splitter = new AudioFileSplitAndTrim(saveDirectory);
+                Directory.CreateDirectory(saveDirectory);
+                resultFiles = await splitter.ProcessTheseFiles(downloadedFiles);
                 //}
 
                 Console.Out.WriteLine("Done processing " + scientificName);

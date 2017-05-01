@@ -32,7 +32,7 @@ namespace BirdAudioAnalysis
 
 			//buffer to read in <offset> # of samples from the raw byte stream
 			//will be converted from bytes to floats
-			byte[] buffer = new byte[4];
+
             float[] bufferF = new float[1];
 			while (_reader.Read(bufferF, 0, bufferF.Length) > 0)
 			{

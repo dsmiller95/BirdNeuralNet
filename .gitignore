@@ -242,4 +242,4 @@ ModelManifest.xml
 .fake/
 
 #Ignore the audio data sets
-DataSets/
+FANNBirdAnalysis/DataSets/
